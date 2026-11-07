@@ -343,3 +343,16 @@ describe("demo data presentation", () => {
     expect(stored.provider).not.toBeNull();
   });
 });
+
+describe("AI insight validation", () => {
+  it("trims overlong lists instead of rejecting, but still rejects unknown ids", async () => {
+    const { validateAiInsight } = await import("./insights");
+    const obs = Array.from({ length: 6 }, (_, i) => ({ text: `Observation ${i}`, evidenceIds: [] as string[] }));
+    const raw = { summary: "Summary.", observations: obs, suggestions: [], caveats: ["a", "b", "c", "d", "e", "f"] };
+    const ok = validateAiInsight(raw, new Set(), new Set(["int-x"]), new Set());
+    expect(ok.ok && ok.value.observations.length).toBe(4);
+    expect(ok.ok && ok.value.caveats.length).toBe(4);
+    const bad = validateAiInsight({ ...raw, suggestions: [{ interventionId: "made-up", whyItMayFit: "x" }] }, new Set(), new Set(["int-x"]), new Set());
+    expect(bad).toEqual({ ok: false, errorCode: "unknown_intervention" });
+  });
+});
