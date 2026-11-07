@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Lexend, Press_Start_2P } from "next/font/google";
+import { Atkinson_Hyperlegible, Lexend, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import { A11yProvider } from "@/components/a11y";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -8,6 +8,7 @@ import { ThemeShell } from "@/components/ThemeShell";
 
 const lexend = Lexend({ variable: "--font-lexend", subsets: ["latin"] });
 const pressStart = Press_Start_2P({ variable: "--font-press-start", subsets: ["latin"], weight: "400" });
+const atkinson = Atkinson_Hyperlegible({ variable: "--font-atkinson", subsets: ["latin"], weight: ["400", "700"] });
 
 export const metadata: Metadata = {
   title: "Rematch — learn, explain, come back stronger",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${lexend.variable} ${pressStart.variable} h-full antialiased`}>
+    <html lang="en" className={`${lexend.variable} ${pressStart.variable} ${atkinson.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <a href="#main" className="skip-link">
           Skip to main content

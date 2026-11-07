@@ -196,3 +196,21 @@ body {
 .pixel-font { font-family: var(--font-press-start), ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.02em; }
 @keyframes quest-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 .quest-bob { animation: quest-bob 1.2s steps(2) infinite; }
+
+/* ------------------------------------------------------------------------
+   Reading settings → Font → "Easy to read": every word uses Atkinson
+   Hyperlegible, including pixel headings, buttons and quest-map labels.
+   All-caps pixel headings become normal mixed case for easier reading.
+   ------------------------------------------------------------------------ */
+html[data-font="easy"] body,
+html[data-font="easy"] body *:not(svg):not(svg *) {
+  font-family: var(--font-atkinson), "Atkinson Hyperlegible", Verdana, Arial, sans-serif !important;
+  letter-spacing: normal !important;
+}
+html[data-font="easy"] :is(h1, h2, h3, .pixel-font) {
+  text-transform: none !important;
+  font-weight: 700 !important;
+}
+html[data-font="easy"] .theme-student {
+  font-weight: 400;
+}

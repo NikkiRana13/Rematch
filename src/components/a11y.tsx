@@ -4,11 +4,16 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, us
 
 type FontSize = "normal" | "large" | "x-large";
 type Spacing = "normal" | "relaxed" | "loose";
+/** "easy" switches every word on the page to an easier-to-read typeface. */
+type FontChoice = "default" | "easy";
 
 interface Settings {
   fontSize: FontSize;
   spacing: Spacing;
+  font: FontChoice;
 }
+
+const DEFAULTS: Settings = { fontSize: "normal", spacing: "normal", font: "default" };
 
 const FONT: Record<FontSize, string> = { normal: "100%", large: "115%", "x-large": "130%" };
 const LEADING: Record<Spacing, string> = { normal: "1.6", relaxed: "1.9", loose: "2.25" };
@@ -19,13 +24,13 @@ const Ctx = createContext<{ settings: Settings; update: (s: Partial<Settings>) =
 function load(): Settings {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return { fontSize: "normal", spacing: "normal", ...JSON.parse(raw) };
+    if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
   } catch {}
-  return { fontSize: "normal", spacing: "normal" };
+  return DEFAULTS;
 }
 
 export function A11yProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<Settings>({ fontSize: "normal", spacing: "normal" });
+  const [settings, setSettings] = useState<Settings>(DEFAULTS);
 
   useEffect(() => {
     // Read persisted preferences after hydration (localStorage is browser-only).
@@ -36,6 +41,8 @@ export function A11yProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.documentElement.style.setProperty("--root-font-size", FONT[settings.fontSize]);
     document.documentElement.style.setProperty("--reading-leading", LEADING[settings.spacing]);
+    if (settings.font === "easy") document.documentElement.dataset.font = "easy";
+    else delete document.documentElement.dataset.font;
   }, [settings]);
 
   const update = useCallback((s: Partial<Settings>) => {
@@ -138,6 +145,16 @@ export function A11yControls() {
               { value: "loose", label: "Extra" },
             ]}
           />
+          <Segmented
+            legend="Font"
+            value={settings.font}
+            onChange={(v) => update({ font: v })}
+            options={[
+              { value: "default", label: "Rematch style" },
+              { value: "easy", label: "Easy to read" },
+            ]}
+          />
+          <p className="text-xs text-navy-soft">“Easy to read” uses Atkinson Hyperlegible for every word on the page.</p>
           <button type="button" className="text-sm underline" onClick={() => setOpen(false)}>
             Close
           </button>
