@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  --cream: #fbf8f3;
+  --cream-2: #f4efe6;
+  --navy: #1b2a4a;
+  --navy-soft: #45526e;
+  --violet: #5b3fd9;
+  --violet-strong: #4a2fc4;
+  --violet-soft: #ede8ff;
+  --green: #1d7a46;
+  --green-soft: #e3f4ea;
+  --amber: #8a5a00;
+  --amber-soft: #fff3d6;
+  --rose: #a3324a;
+  --rose-soft: #fde8ec;
+  --line: #e4dccd;
+  --reading-leading: 1.6;
+}
+
+@theme inline {
+  --color-cream: var(--cream);
+  --color-cream-2: var(--cream-2);
+  --color-navy: var(--navy);
+  --color-navy-soft: var(--navy-soft);
+  --color-violet: var(--violet);
+  --color-violet-strong: var(--violet-strong);
+  --color-violet-soft: var(--violet-soft);
+  --color-green: var(--green);
+  --color-green-soft: var(--green-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-rose: var(--rose);
+  --color-rose-soft: var(--rose-soft);
+  --color-line: var(--line);
+  --font-sans: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  /* Adjustable via accessibility settings (font size scales every rem). */
+  font-size: var(--root-font-size, 100%);
+}
+
+body {
+  background: var(--cream);
+  color: var(--navy);
+  font-family: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+/* Reading content follows the learner's line-spacing setting. */
+.reading-text {
+  line-height: var(--reading-leading);
+}
+
+/* Visible, consistent keyboard focus. */
+:focus-visible {
+  outline: 3px solid var(--violet);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  z-index: 50;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  background: var(--navy);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-pop {
+  animation: pop-in 220ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
