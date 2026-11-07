@@ -18,6 +18,13 @@ const EXPECTED_CORRECT_TEXT: Record<string, string> = {
   "q-math-place-value": "7 000",
   "q-math-add-library": "1 625",
   "q-math-div-chairs": "12",
+  "q-read-inf-mateo": "To keep the book dry.",
+  "q-read-inf-patel": "She had been sick or unwell.",
+  "q-math-frac-granola": "Kim.",
+  "q-math-frac-paint": "Lila.",
+  "q-read-vocab-batter": "A mixture used to bake muffins.",
+  "q-math-mult-markers": "84",
+  "q-math-sub-theatre": "725",
 };
 
 describe("seed content verification", () => {
@@ -49,10 +56,14 @@ describe("seed content verification", () => {
       ["q-math-frac-ribbon", 5, 9],
       ["q-math-frac-juice", 3, 5],
       ["q-math-frac-garden", 6, 8],
+      ["q-math-frac-granola", 3, 5],
+      ["q-math-frac-paint", 6, 10],
     ];
     for (const [, a, b] of cases) expect(1 / a).toBeGreaterThan(1 / b);
     expect(1250 + 375).toBe(1625);
     expect(96 / 8).toBe(12);
+    expect(14 * 6).toBe(84);
+    expect(2400 - 1675).toBe(725);
     expect(Math.floor(47382 / 1000) % 10).toBe(7);
   });
 

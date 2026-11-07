@@ -53,7 +53,12 @@ With no Supabase variables set, the app runs in **local demo mode**:
    ```
    `supabase/seed.sql` is **generated** from `src/lib/content/seed.ts` by `npm run seed:sql`, so answer keys stay synchronised between modes.
 3. `cp .env.example .env.local` and fill in `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only), and optionally `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` (default `claude-opus-5-5`).
-4. `npm run build && npm start`. Sign up as a host at `/host`. Use **Load labelled demo data** to add fictional history to *your own* account.
+4. Optional demo classrooms: put `REMATCH_DEMO_HOST_PASSWORD=...` in `.env.local` and run `set -a; . ./.env.local; set +a; npm run populate:demo` (add `-- --reset` to recreate them). This script:
+   - creates two demo host logins (`rivera.demo@rematch-demo.app` and `jordan.demo@rematch-demo.app`)
+   - creates 8 competitions (open, closed, draft and an empty "live demo")
+   - drives fictional students through the real scoring/analysis/practice/comeback services
+   - then labels every dummy student "(synthetic)"
+5. `npm run build && npm start`. Sign up as a host at `/host`. Use **Load labelled demo data** to add fictional history to *your own* account.
 
 ---
 

@@ -112,8 +112,8 @@ describe("next-sprint recommendation", () => {
     const fracCount = r.questionIds.filter((id) => bank.find((q) => q.id === id)!.skill === "math.fractions_intro").length;
     expect(fracCount).toBeLessThanOrEqual(2);
     expect(r.reviewSkills.length).toBeGreaterThan(0);
-    // Prefers the not-recently-attempted fraction question first.
-    expect(r.questionIds[0]).toBe("q-math-frac-juice");
+    // Prefers fraction questions the class has not recently attempted.
+    expect(r.questionIds.slice(0, fracCount)).not.toContain("q-math-frac-pizza");
     // Only verified initial questions of the subject.
     for (const id of r.questionIds) {
       const q = bank.find((x) => x.id === id)!;
