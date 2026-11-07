@@ -7,7 +7,7 @@ import { INTERVENTIONS } from "../content/seed";
 import type { Db } from "../db/types";
 import { UniqueViolationError } from "../db/types";
 import { recommendNextSprint } from "../recommend";
-import type { Category, Competition, Host, InsightPayload, Passage, Question, Subject } from "../types";
+import type { Analysis, Attempt, Category, ClassificationOverride, Competition, Host, InsightPayload, Participant, Passage, Question, Subject } from "../types";
 import { buildDemoBundle } from "./demoData";
 import { ServiceError } from "./errors";
 import {
@@ -74,7 +74,9 @@ function requireHost(host: Host | null): Host {
 
 export async function listCompetitions(db: Db, hostIn: Host | null) {
   const host = requireHost(hostIn);
-  const comps = await db.select("competitions", { eq: { ownerId: host.id }, orderBy: { column: "createdAt", ascending: false } });
+  const comps = (await db.select("competitions", { eq: { ownerId: host.id }, orderBy: { column: "createdAt", ascending: false } })).filter(
+    (c) => !c.isPracticeSpace,
+  );
   const participants = comps.length
     ? await db.select("participants", { in: { column: "competitionId", values: comps.map((c) => c.id) } })
     : [];
@@ -124,6 +126,7 @@ export async function createCompetition(db: Db, hostIn: Host | null, input: z.in
         status: "draft",
         roomCode: generateRoomCode(),
         isDemoData: false,
+        isPracticeSpace: false,
         createdAt: new Date().toISOString(),
         openedAt: null,
         closedAt: null,
@@ -430,4 +433,48 @@ export async function loadDemoData(db: Db, hostIn: Host | null) {
   for (const a of bundle.attempts.filter((x) => x.kind === "comeback")) await db.insert("attempts", a);
   for (const a of bundle.analyses) await db.insert("analyses", a);
   return { competitions: bundle.competitions.length };
+}
+
+/** Class overview across several of the host's competitions, filtered by subject and competition. */
+export async function getOverview(db: Db, hostIn: Host | null, filter: { subject: "all" | Subject; competitionIds: string[] | null }) {
+  const host = requireHost(hostIn);
+  const all = (await db.select("competitions", { eq: { ownerId: host.id } })).filter((c) => !c.isPracticeSpace && c.status !== "draft");
+  const available = all
+    .filter((c) => filter.subject === "all" || c.subject === filter.subject)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  const selected = filter.competitionIds ? available.filter((c) => filter.competitionIds!.includes(c.id)) : available;
+  const merged = { participants: [] as Participant[], attempts: [] as Attempt[], analyses: [] as Analysis[], overrides: [] as ClassificationOverride[], questions: [] as Question[] };
+  const perCompetition = [];
+  for (const c of selected) {
+    const raw = await loadCompetitionData(db, c);
+    // Defence in depth: the subject filter also applies to individual attempts.
+    const d = filter.subject === "all" ? raw : { ...raw, attempts: raw.attempts.filter((a) => a.subject === filter.subject) };
+    merged.participants.push(...d.participants);
+    merged.attempts.push(...d.attempts);
+    merged.analyses.push(...d.analyses);
+    merged.overrides.push(...d.overrides);
+    merged.questions.push(...d.questions.filter((q) => !merged.questions.some((x) => x.id === q.id)));
+    const a = computeCompetitionAnalytics({ competition: c, ...d });
+    perCompetition.push({
+      id: c.id,
+      title: c.title,
+      subject: c.subject,
+      status: c.status,
+      isDemoData: c.isDemoData,
+      participants: a.participantCount,
+      completion: a.completion,
+      firstTryAccuracy: a.questionAccuracy.reduce(
+        (s, q) => ({ numerator: s.numerator + q.accuracy.numerator, denominator: s.denominator + q.accuracy.denominator }),
+        { numerator: 0, denominator: 0 },
+      ),
+      comebackSuccess: a.comebackSuccess,
+    });
+  }
+  const analytics = computeCompetitionAnalytics({ competitions: selected, ...merged });
+  return {
+    available: available.map((c) => ({ id: c.id, title: c.title, subject: c.subject, status: c.status, isDemoData: c.isDemoData })),
+    selectedIds: selected.map((c) => c.id),
+    analytics,
+    perCompetition,
+  };
 }

@@ -58,4 +58,13 @@ export class SupabaseDb implements Db {
     if (error) raise(table, error);
     return (data ?? []).map((r) => rowFromDb<RowMap[T]>(r));
   }
+
+  async delete<T extends TableName>(table: T, where: Partial<RowMap[T]>): Promise<number> {
+    if (!Object.keys(where).length) throw new Error("Refusing to delete without a filter");
+    let q = this.client.from(table).delete();
+    for (const [k, v] of Object.entries(where)) q = v === null ? q.is(toSnake(k), null) : q.eq(toSnake(k), v);
+    const { data, error } = await q.select("id");
+    if (error) raise(table, error);
+    return (data ?? []).length;
+  }
 }

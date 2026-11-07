@@ -2,7 +2,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import { appMode, supabaseConfig } from "../env";
-import { MemoryDb, type Store } from "./memory";
+import { emptyStore, MemoryDb, type Store } from "./memory";
 import { SupabaseDb } from "./supabase";
 import type { Db } from "./types";
 import { DbUnavailableError } from "./types";
@@ -16,7 +16,7 @@ type G = typeof globalThis & { __rematchDb?: Db };
 function loadLocal(): Db {
   let store: Store | null = null;
   try {
-    if (fs.existsSync(DATA_FILE)) store = JSON.parse(fs.readFileSync(DATA_FILE, "utf8")) as Store;
+    if (fs.existsSync(DATA_FILE)) store = { ...emptyStore(), ...(JSON.parse(fs.readFileSync(DATA_FILE, "utf8")) as Store) };
   } catch (e) {
     console.warn("[local-demo] Could not read local data file; reseeding.", e);
   }

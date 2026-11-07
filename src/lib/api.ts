@@ -1,4 +1,5 @@
 import "server-only";
+import { connection } from "next/server";
 import { ZodError } from "zod";
 import { AuthzError } from "./authz";
 import { DbUnavailableError, UniqueViolationError } from "./db/types";
@@ -21,6 +22,7 @@ export function errorResponse(e: unknown) {
 }
 
 export async function handle(fn: () => Promise<unknown>) {
+  await connection(); // API responses are always per-request (cookies, sessions, live data)
   try {
     return json(await fn());
   } catch (e) {

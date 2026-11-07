@@ -12,7 +12,8 @@
     "eval": "tsx --conditions=react-server scripts/eval-classifier.ts",
     "seed:sql": "tsx scripts/generate-seed-sql.ts",
     "check": "npm run lint && npm run typecheck && npm test",
-    "populate:demo": "tsx --conditions=react-server scripts/populate-demo.ts"
+    "populate:demo": "tsx --conditions=react-server scripts/populate-demo.ts",
+    "populate:plans": "tsx --conditions=react-server scripts/populate-plans.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

@@ -64,6 +64,48 @@ The bank has **21 verified questions**. Every answer key is checked by an automa
 
 ---
 
+## Learning plans & My Learning Roadmap
+
+Teachers publish a learning plan organised by **lecture or lesson** (configurable label): *"By Lecture 5, students should be able to…"*. Students see where they are on it, based on their real Rematch answers.
+
+**Teachers** (Host → Learning plans):
+- **Building plans:** create plans manually, or import a `.txt`/`.md` file (max 100 KB). AI extracts a draft (rule-based parsing if AI is off). Every extracted lecture and objective must quote your file, otherwise the AI output is rejected. Vague or broad objectives (e.g. "Understand fractions") are flagged and must be resolved before publishing. PDF import isn't supported yet.
+- **Linking evidence:** order lectures and objectives, then map each objective to specific verified questions. Only mapped questions ever count as evidence.
+- **Publishing:** preview as a student, publish, and assign to your classrooms (competitions).
+- **Versioned edits:** editing a published plan starts a revision. Students keep seeing the published version until you publish again. Objective keys are stable, and old attempts only count where the new version still maps that question.
+- **Class progress:** a learner × objective grid, per-learner evidence, and overrides. Overrides require a reason, keep the computed status, and never touch the evidence.
+- **Rule:** adjust the "Demonstrated in Rematch" rule within a small set of options (Standard, Lighter, or Stricter).
+
+**Students** (My roadmap):
+- **Overview:** a plan selector, overall progress (*"3 of 5 objectives demonstrated in Rematch"*), and lecture cards with objective-level status, counts and dates.
+- **Next step and evidence:** a rule-based *Your next step*, recent activity (sprint vs comeback vs rematch), and an evidence view explaining each status.
+- **Rematch this objective:** picks a verified question mapped to that objective, preferring ones you haven't seen. It runs through the normal practice/clarification/comeback engine, never awards competition points, and updates the roadmap immediately. If nothing is mapped: *"Your teacher hasn't added practice for this objective yet."*
+- **Explain my progress:** "Am I ready for Lecture N?", "What should I practise next?", "Why does this objective need practice?". The AI only explains server-computed statuses. Every objective, attempt and practice ID it returns is validated, "mastery" claims are rejected, and treating missing data as weakness is rejected. If AI fails, a labelled rule-based summary is shown and the dashboard keeps working.
+- **Resume code:** a private code to continue on another device (hash stored only).
+
+**Demonstrated in Rematch (MVP rule, not an educational standard or grade).** Default:
+- at least 3 different mapped questions answered independently
+- at least 2 correct among the most recent 3
+- the most recent one correct
+- at least one correct rematch or comeback question
+
+Other rules:
+- Each question counts once. A question already seen (answer revealed) is practice, not evidence.
+- No evidence → *Not assessed*. Some evidence → *In progress*. Enough evidence but below the rule → *Needs practice*.
+- A later independent error can move an objective back to *Needs practice*.
+- A lecture is demonstrated only when all its required objectives are.
+
+**Privacy:**
+- Evidence only comes from the plan owner's own competitions.
+- Students see only plans assigned to classrooms they joined, and only their own progress.
+- Teachers see only learners in their assigned classrooms.
+
+## Class overview (teacher)
+
+Host → **Class overview** combines results across competitions, with a **subject filter** (All / Reading / Math) and **competition checkboxes**. It shows completion, skill accuracy, comeback success and likely misconceptions with denominators, plus a per-competition breakdown.
+
+---
+
 ## The AI, and its guardrails
 
 Explanations are analysed by Claude (`claude-opus-5-5` by default) when `ANTHROPIC_API_KEY` is set. Otherwise a transparent rule-based analyser is used. The UI always labels which one produced a result.
@@ -142,12 +184,14 @@ It's clearly labelled, it isn't a shared database, and it's disabled automatical
    | `ANTHROPIC_API_KEY` | **Secret.** Optional; enables AI analysis |
    | `ANTHROPIC_MODEL`, `ANTHROPIC_EFFORT` | Optional overrides |
 4. **Deploy:** `npx vercel deploy --prod`, or connect the GitHub repo in Vercel for automatic deploys on every push.
-5. **Optional: demo classrooms.** Set `REMATCH_DEMO_HOST_PASSWORD` in `.env.local` and run:
+5. **Learning plans migration:** `supabase/migrations/20261108000000_learning_plans.sql` is applied by the same `npx supabase db push --remote --include-seed`. It's additive: existing rows keep their data.
+6. **Optional: demo classrooms.** Set `REMATCH_DEMO_HOST_PASSWORD` in `.env.local` and run:
    ```bash
    set -a; . ./.env.local; set +a
    npm run populate:demo            # add -- --reset to rebuild
    ```
    This creates two demo host logins and 8 competitions. Fictional students are driven through the real scoring, analysis, practice and comeback services, then labelled "(synthetic)".
+   Then run `npm run populate:plans` to add two fictional learning plans and demo learners. Their statuses (demonstrated, needs practice, in progress, not assessed) come from real attempt records. Their resume codes are written to the gitignored `demo-learner-codes.local.txt`.
 
 `supabase/seed.sql` is generated from `src/lib/content/seed.ts` (`npm run seed:sql`), so local and hosted answer keys never drift apart.
 
@@ -159,11 +203,12 @@ It's clearly labelled, it isn't a shared database, and it's disabled automatical
 |---|---|
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm run check` | Lint + type check + tests |
-| `npm test` | 60 Vitest tests: scoring, answer keys, payload sanitisation, validation, routing, authorization, analytics, recommendations |
+| `npm test` | 89 Vitest tests: scoring, answer keys, payload sanitisation, validation, routing, authorization, analytics, recommendations |
 | `npm run eval -- --rules` | Offline classifier evaluation on labelled fixtures (rule-based baseline) |
 | `npm run eval` | Same, with Claude. **Makes real, billed API calls** |
 | `npm run seed:sql` | Regenerate `supabase/seed.sql` from the verified bank |
 | `npm run populate:demo` | Create demo classrooms in a Supabase project |
+| `npm run populate:plans` | Add fictional demo learning plans + learners (writes resume codes to a gitignored file) |
 
 ## Project structure
 
@@ -193,7 +238,7 @@ Reading and math share one sprint engine. Only the content, rubrics, and practic
   - practice → comeback
   - live dashboard updates
   - access control: other students and hosts get 404, no session gets 401
-- **Checks:** lint, type checking, the production build, and 60 automated tests all pass.
+- **Checks:** lint, type checking, the production build, and 89 automated tests all pass.
 - **Claude classification** (`claude-opus-5-5`, prompt `classify-v1`) on the 31 developer-written labelled fixtures:
   - **31 of 31** matched the expected label.
   - **0 of 7** vague, guess or injection cases got a specific diagnosis.

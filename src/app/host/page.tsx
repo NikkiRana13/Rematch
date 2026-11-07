@@ -69,6 +69,12 @@ function Dashboard({ host, session }: { host: NonNullable<SessionInfo["host"]>; 
         </div>
         <div className="flex gap-2 flex-wrap">
           <LinkButton href="/host/competitions/new">+ New competition</LinkButton>
+          <LinkButton href="/host/plans" variant="secondary">
+            Learning plans
+          </LinkButton>
+          <LinkButton href="/host/overview" variant="secondary">
+            Class overview
+          </LinkButton>
           <Button variant="secondary" onClick={() => act("logout", () => post("/api/auth/logout")).then(() => location.reload())}>
             Sign out
           </Button>

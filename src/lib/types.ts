@@ -122,6 +122,8 @@ export interface Competition {
   roomCode: string;
   questionIds: string[];
   isDemoData: boolean;
+  /** Hidden per-plan competition used for roadmap rematches; never listed as a sprint. */
+  isPracticeSpace: boolean;
   createdAt: string;
   openedAt: string | null;
   closedAt: string | null;
@@ -131,6 +133,17 @@ export interface Learner {
   id: string;
   tokenHash: string;
   nickname: string;
+  /** SHA-256 of the learner's private resume code (lets them continue on another device). */
+  resumeCodeHash: string | null;
+  isSynthetic: boolean;
+  createdAt: string;
+}
+
+/** Additional device sessions for a learner (created by entering a resume code). */
+export interface LearnerSession {
+  id: string;
+  learnerId: string;
+  tokenHash: string;
   createdAt: string;
 }
 
@@ -173,7 +186,8 @@ export interface Attempt {
   questionVersion: number;
   subject: Subject;
   skill: SkillId;
-  kind: "initial" | "comeback";
+  /** initial = competition question; comeback = follow-up after practice; roadmap = objective rematch (no points). */
+  kind: "initial" | "comeback" | "roadmap";
   originalAttemptId: string | null;
   selectedAnswer: string;
   isCorrect: boolean;
@@ -186,6 +200,11 @@ export interface Attempt {
   clarificationText: string | null;
   practiceCompletedAt: string | null;
   teacherReview: boolean;
+  /** False when the learner had already seen this question (and its answer) before. */
+  independent: boolean;
+  support: "none" | "answer_previously_revealed";
+  /** Objective targeted by a roadmap rematch (informational; evidence uses explicit mappings). */
+  objectiveId: string | null;
   isSynthetic: boolean;
   createdAt: string;
 }
@@ -246,5 +265,95 @@ export interface InterventionAssignment {
   interventionId: string;
   rationale: string;
   source: "ai" | "rule-based";
+  createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Learning plans & roadmap
+// ---------------------------------------------------------------------------
+
+export type ObjectiveStatus = "not_assessed" | "in_progress" | "needs_practice" | "demonstrated";
+
+/** MVP "Demonstrated in Rematch" rule. Configurable within a small set of options. */
+export interface EvidenceRule {
+  /** Distinct mapped questions needed before a decision (also the size of the "recent" window). */
+  minDistinctQuestions: 2 | 3 | 4;
+  /** Correct answers required among the most recent `minDistinctQuestions` distinct questions. */
+  minCorrectInRecent: number;
+  requireLatestCorrect: boolean;
+  requireTransferCorrect: boolean;
+}
+
+export interface LearningPlan {
+  id: string;
+  ownerId: string;
+  title: string;
+  subject: Subject | "mixed";
+  courseLabel: string;
+  description: string;
+  /** "Lecture" or "Lesson" (configurable label). */
+  unitLabel: "Lecture" | "Lesson";
+  status: "draft" | "published";
+  publishedVersion: number | null;
+  /** Version currently being edited (null when no draft exists). */
+  draftVersion: number | null;
+  evidenceRule: EvidenceRule;
+  source: "manual" | "import";
+  practiceCompetitionId: string | null;
+  isDemoData: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlanLecture {
+  id: string;
+  planId: string;
+  planVersion: number;
+  position: number;
+  number: number;
+  title: string;
+}
+
+export interface LearningObjective {
+  id: string;
+  planId: string;
+  planVersion: number;
+  lectureId: string;
+  /** Stable across plan versions. */
+  objectiveKey: string;
+  position: number;
+  text: string;
+  skill: SkillId | null;
+  required: boolean;
+  /** Set by import when an objective is ambiguous or too broad; must be resolved before publishing. */
+  needsReview: boolean;
+  reviewNote: string | null;
+  sourceQuote: string | null;
+}
+
+export interface ObjectiveQuestionMapping {
+  id: string;
+  objectiveId: string;
+  planId: string;
+  planVersion: number;
+  questionId: string;
+}
+
+export interface PlanAssignment {
+  id: string;
+  planId: string;
+  competitionId: string;
+  createdAt: string;
+}
+
+export interface ObjectiveOverride {
+  id: string;
+  planId: string;
+  objectiveId: string;
+  learnerId: string;
+  hostId: string;
+  status: ObjectiveStatus;
+  reason: string;
+  computedStatusAtOverride: ObjectiveStatus;
   createdAt: string;
 }

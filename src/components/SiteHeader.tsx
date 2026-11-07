@@ -11,6 +11,7 @@ export function SiteHeader() {
   const nav = [
     { href: "/join", label: "Join" },
     { href: "/me", label: "My sprints" },
+    { href: "/roadmap", label: "My roadmap" },
     { href: "/host", label: "Host" },
   ];
   return (

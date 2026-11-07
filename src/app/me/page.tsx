@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/components/fetcher";
+import { api, post } from "@/components/fetcher";
 import { Alert, Card, EmptyState, LinkButton, Spinner, StatusBadge, SubjectBadge } from "@/components/ui";
 import { ScorePills, SubjectProgress, type SkillProgress } from "@/components/student";
 
@@ -80,6 +80,16 @@ export default function StudentHome() {
         </LinkButton>
       </Card>
 
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold">My Learning Roadmap</h2>
+          <p className="text-sm text-navy-soft">See what you&apos;re expected to learn, what you&apos;ve shown so far, and what to rematch next.</p>
+        </div>
+        <LinkButton href="/roadmap">Open my roadmap</LinkButton>
+      </Card>
+
+      <ResumeCodeCard />
+
       <Card>
         <h2 className="text-xl font-bold">Your progress</h2>
         <p className="text-sm text-navy-soft mb-4">
@@ -91,5 +101,35 @@ export default function StudentHome() {
         </div>
       </Card>
     </div>
+  );
+}
+
+function ResumeCodeCard() {
+  const [code, setCode] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  return (
+    <Card className="space-y-2">
+      <h2 className="text-lg font-bold">Continue on another device</h2>
+      <p className="text-sm text-navy-soft">
+        Get a private resume code to see your progress on another device. Keep it secret — anyone with it can see your progress. Getting a new code turns off the old one.
+      </p>
+      {code ? (
+        <p className="text-2xl font-bold tracking-[0.2em]" aria-live="polite">
+          {code}
+        </p>
+      ) : (
+        <button
+          className="rounded-xl border border-line bg-white px-4 py-2 font-semibold hover:border-violet"
+          onClick={() =>
+            post<{ code: string }>("/api/learner/resume-code")
+              .then((r) => setCode(r.code))
+              .catch((e) => setErr((e as Error).message))
+          }
+        >
+          Show me a resume code
+        </button>
+      )}
+      {err && <Alert tone="rose" role="alert">{err}</Alert>}
+    </Card>
   );
 }

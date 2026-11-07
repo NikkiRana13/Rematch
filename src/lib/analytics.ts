@@ -139,22 +139,30 @@ export interface CompetitionAnalytics {
   includesSyntheticData: boolean;
 }
 
+/**
+ * Analytics for one competition, or aggregated across several (`competitions`).
+ * Completion and first-attempt filters are applied per competition.
+ */
 export function computeCompetitionAnalytics(input: {
-  competition: Competition;
+  competition?: Competition;
+  competitions?: Competition[];
   questions: Question[];
   participants: Participant[];
   attempts: Attempt[];
   analyses: Analysis[];
   overrides: ClassificationOverride[];
 }): CompetitionAnalytics {
-  const { competition, participants, attempts, analyses, overrides } = input;
+  const { participants, attempts, analyses, overrides } = input;
+  const comps = input.competitions ?? (input.competition ? [input.competition] : []);
+  const compById = new Map(comps.map((c) => [c.id, c]));
   const nick = new Map(participants.map((p) => [p.id, p.nickname]));
-  const initial = attempts.filter((a) => a.kind === "initial" && competition.questionIds.includes(a.questionId));
+  const initial = attempts.filter((a) => a.kind === "initial" && Boolean(compById.get(a.competitionId)?.questionIds.includes(a.questionId)));
   const comeback = attempts.filter((a) => a.kind === "comeback");
 
-  const completed = participants.filter((p) =>
-    competition.questionIds.every((qid) => initial.some((a) => a.participantId === p.id && a.questionId === qid)),
-  ).length;
+  const completed = participants.filter((p) => {
+    const c = compById.get(p.competitionId);
+    return Boolean(c) && c!.questionIds.every((qid) => initial.some((a) => a.participantId === p.id && a.questionId === qid));
+  }).length;
 
   // Skill accuracy: first attempts only (comebacks excluded so baseline is not inflated).
   const bySkill = new Map<SkillId, Attempt[]>();
@@ -170,7 +178,7 @@ export function computeCompetitionAnalytics(input: {
     };
   });
 
-  const questionAccuracy = competition.questionIds.map((qid) => {
+  const questionAccuracy = [...new Set(comps.flatMap((c) => c.questionIds))].map((qid) => {
     const list = initial.filter((a) => a.questionId === qid);
     return { questionId: qid, accuracy: ratio(list.filter((a) => a.isCorrect).length, list.length) };
   });
@@ -235,7 +243,7 @@ export function computeCompetitionAnalytics(input: {
   }
 
   let readAloud: CompetitionAnalytics["readAloud"] = null;
-  if (competition.subject === "reading" || initial.some((a) => a.subject === "reading")) {
+  if (comps.some((c) => c.subject === "reading") || initial.some((a) => a.subject === "reading")) {
     const reading = initial.filter((a) => a.subject === "reading");
     const withRA = reading.filter((a) => a.readAloudUsed);
     const without = reading.filter((a) => !a.readAloudUsed);

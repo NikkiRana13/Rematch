@@ -25,6 +25,9 @@ const EXPECTED_CORRECT_TEXT: Record<string, string> = {
   "q-read-vocab-batter": "A mixture used to bake muffins.",
   "q-math-mult-markers": "84",
   "q-math-sub-theatre": "725",
+  "q-read-evidence-mateo": "It was pouring.",
+  "q-read-evidence-patel": "A \"Get Well Soon\" card was on her desk.",
+  "q-read-evidence-leo": "Leo saw frost on the grass.",
 };
 
 describe("seed content verification", () => {

@@ -38,6 +38,24 @@ export const ClarifyInput = z.union([
   z.object({ text: z.string().trim().min(1).max(1000) }),
 ]);
 
+/**
+ * Independence: an attempt counts as independent evidence only if this learner has never
+ * attempted the question before (feedback reveals answers, so a repeat is not new evidence).
+ */
+export async function exposure(
+  db: Db,
+  participant: Pick<Participant, "id" | "learnerId">,
+  questionId: string,
+): Promise<Pick<Attempt, "independent" | "support">> {
+  const participantIds = participant.learnerId
+    ? (await db.select("participants", { eq: { learnerId: participant.learnerId } })).map((p) => p.id)
+    : [participant.id];
+  const prior = participantIds.length
+    ? await db.select("attempts", { eq: { questionId }, in: { column: "participantId", values: participantIds } })
+    : [];
+  return prior.length ? { independent: false, support: "answer_previously_revealed" } : { independent: true, support: "none" };
+}
+
 async function loadCompetition(db: Db, id: string): Promise<Competition> {
   const [c] = await db.select("competitions", { eq: { id } });
   if (!c) throw new AuthzError(404, "Competition not found.");
@@ -63,7 +81,8 @@ export async function joinCompetition(
 ): Promise<{ learner: Learner; newToken: string | null; participant: Participant; competition: Competition }> {
   const code = normalizeRoomCode(input.roomCode);
   const [competition] = await db.select("competitions", { eq: { roomCode: code } });
-  if (!competition) throw new ServiceError(404, "room_not_found", "We couldn't find a competition with that code.");
+  if (!competition || competition.isPracticeSpace)
+    throw new ServiceError(404, "room_not_found", "We couldn't find a competition with that code.");
   if (competition.status !== "open")
     throw new ServiceError(403, "room_not_open", "That competition isn't open right now. Ask your host!");
 
@@ -75,6 +94,8 @@ export async function joinCompetition(
       id: randomUUID(),
       tokenHash: hashToken(newToken),
       nickname: input.nickname,
+      resumeCodeHash: null,
+      isSynthetic: false,
       createdAt: new Date().toISOString(),
     });
   }
@@ -171,7 +192,15 @@ export function studentFeedback(q: Question, attempt: Attempt, analysis: Analysi
   const revealAnswer = attempt.isCorrect || route?.path !== "clarify";
   let message: string;
   let idea: string | null = null;
-  if (attempt.kind === "comeback") {
+  if (attempt.kind === "roadmap") {
+    message = attempt.isCorrect
+      ? attempt.independent
+        ? "Correct — that's new evidence for this objective."
+        : "Correct! You'd seen this question before, so it counts as practice rather than new evidence."
+      : route?.path === "clarify"
+        ? "Thanks for explaining! Before we move on, can you tell us a little more?"
+        : "Not quite yet — let's practise, then try a fresh question.";
+  } else if (attempt.kind === "comeback") {
     message = attempt.isCorrect
       ? "You used what you practised — nice work."
       : "Thanks for trying the comeback question. Every attempt helps you and your teacher see what to practise next.";
@@ -214,7 +243,7 @@ export function studentFeedback(q: Question, attempt: Attempt, analysis: Analysi
   };
 }
 
-async function computeAndStoreRoute(
+export async function computeAndStoreRoute(
   db: Db,
   attempt: Attempt,
   question: Question,
@@ -291,6 +320,8 @@ export async function submitInitialAnswer(
       clarificationText: null,
       practiceCompletedAt: null,
       teacherReview: false,
+      ...(await exposure(db, participant, question.id)),
+      objectiveId: null,
       isSynthetic: false,
       createdAt: new Date().toISOString(),
     });
@@ -411,6 +442,8 @@ export async function submitComeback(
       clarificationText: null,
       practiceCompletedAt: null,
       teacherReview: false,
+      ...(await exposure(db, participant, followUp.id)),
+      objectiveId: null,
       isSynthetic: false,
       createdAt: new Date().toISOString(),
     });
@@ -479,7 +512,7 @@ export async function getLearnerHome(db: Db, learner: Learner | null) {
     : [];
   return {
     nickname: learner.nickname,
-    sprints: competitions.map((c) => {
+    sprints: competitions.filter((c) => !c.isPracticeSpace).map((c) => {
       const mine = attempts.filter((a) => a.competitionId === c.id);
       const answered = c.questionIds.filter((qid) => mine.some((a) => a.kind === "initial" && a.questionId === qid)).length;
       return { ...publicCompetition(c), answered, ...summarizeScore(mine) };

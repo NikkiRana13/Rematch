@@ -34,14 +34,15 @@ export function scoreComeback(
   followUp: Question,
   selectedAnswer: string,
 ): { isCorrect: boolean; points: number } {
-  if (original.kind !== "initial" || original.isCorrect) {
+  if (original.kind === "comeback" || original.isCorrect) {
     throw new ScoringError("comeback_not_allowed", "Comeback is only available after an incorrect first attempt.");
   }
   if (!original.route || original.route.comebackQuestionId !== followUp.id) {
     throw new ScoringError("wrong_question", "This follow-up question was not offered for that attempt.");
   }
   const isCorrect = isCorrectChoice(followUp, selectedAnswer);
-  return { isCorrect, points: isCorrect ? COMEBACK_POINTS : 0 };
+  // Roadmap practice never awards competition points.
+  return { isCorrect, points: isCorrect && original.kind === "initial" ? COMEBACK_POINTS : 0 };
 }
 
 export interface ScoreSummary {

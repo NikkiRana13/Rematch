@@ -48,3 +48,6 @@ next-env.d.ts
 # IDE
 .idea/
 *.iml
+
+# local-only demo access codes
+*.local.txt

@@ -1,6 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { hashToken } from "./tokens";
+import { learnerForToken } from "../services/learnerAccess";
 import { getDb } from "../db";
 import type { Learner } from "../types";
 
@@ -21,6 +21,5 @@ export const learnerCookieOptions = {
 export async function getLearner(): Promise<Learner | null> {
   const token = (await cookies()).get(LEARNER_COOKIE)?.value;
   if (!token || token.length < 20) return null;
-  const [learner] = await getDb().select("learners", { eq: { tokenHash: hashToken(token) } });
-  return learner ?? null;
+  return learnerForToken(getDb(), token);
 }

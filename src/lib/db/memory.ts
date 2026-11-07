@@ -17,6 +17,13 @@ export function emptyStore(): Store {
     classification_overrides: [],
     insights: [],
     intervention_assignments: [],
+    learner_sessions: [],
+    learning_plans: [],
+    learning_plan_lectures: [],
+    learning_objectives: [],
+    objective_question_mappings: [],
+    learning_plan_assignments: [],
+    objective_progress_overrides: [],
   };
 }
 
@@ -30,6 +37,9 @@ const UNIQUE: { [K in TableName]?: ((r: RowMap[K]) => string | null)[] } = {
     (r) => (r.kind === "comeback" ? `${r.originalAttemptId}` : null),
   ],
   analyses: [(r) => `${r.attemptId}:${r.stage}`],
+  learner_sessions: [(r) => r.tokenHash],
+  objective_question_mappings: [(r) => `${r.objectiveId}:${r.questionId}`],
+  learning_plan_assignments: [(r) => `${r.planId}:${r.competitionId}`],
 };
 
 const field = (row: unknown, k: string): unknown => (row as Record<string, unknown>)[k];
@@ -91,5 +101,15 @@ export class MemoryDb implements Db {
     }
     if (updated.length) this.onChange();
     return updated;
+  }
+
+  async delete<T extends TableName>(table: T, where: Partial<RowMap[T]>): Promise<number> {
+    if (!Object.keys(where).length) throw new Error("Refusing to delete without a filter");
+    const rows = this.store[table] as RowMap[T][];
+    const keep = rows.filter((r) => !matches(r, where));
+    const removed = rows.length - keep.length;
+    (this.store[table] as RowMap[T][]) = keep;
+    if (removed) this.onChange();
+    return removed;
   }
 }

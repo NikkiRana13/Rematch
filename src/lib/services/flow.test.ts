@@ -356,3 +356,21 @@ describe("AI insight validation", () => {
     expect(bad).toEqual({ ok: false, errorCode: "unknown_intervention" });
   });
 });
+
+describe("class overview filters", () => {
+  it("aggregates across selected competitions and filters by subject", async () => {
+    const { getOverview } = await import("./host");
+    const all = await getOverview(db, teacher, { subject: "all", competitionIds: null });
+    const math = await getOverview(db, teacher, { subject: "math", competitionIds: null });
+    expect(math.available.every((c) => c.subject === "math")).toBe(true);
+    expect(math.analytics.skillAccuracy.every((k) => k.skill.startsWith("math."))).toBe(true);
+    expect(all.available.length).toBeGreaterThan(math.available.length);
+    const sumParticipants = all.perCompetition.reduce((s, c) => s + c.participants, 0);
+    expect(all.analytics.participantCount).toBe(sumParticipants);
+    const one = await getOverview(db, teacher, { subject: "all", competitionIds: [all.available[0].id] });
+    expect(one.selectedIds).toEqual([all.available[0].id]);
+    await expect(getOverview(db, null, { subject: "all", competitionIds: null })).rejects.toMatchObject({ status: 401 });
+    const otherHost = await getOverview(db, DEMO_HOSTS[1], { subject: "all", competitionIds: all.available.map((c) => c.id) });
+    expect(otherHost.selectedIds).toEqual([]);
+  });
+});
