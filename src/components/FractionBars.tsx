@@ -1,4 +1,4 @@
-import { fractionLabel } from "./MathText";
+import { fractionLabel, MathText } from "./MathText";
 
 /** Accurate fraction bars: every bar has the same total width (equal wholes), split into equal parts. */
 export function FractionBars({ bars }: { bars: { label: string; numerator: number; denominator: number }[] }) {
@@ -10,7 +10,9 @@ export function FractionBars({ bars }: { bars: { label: string; numerator: numbe
         const part = W / b.denominator;
         return (
           <div key={b.label}>
-            <p className="text-sm font-semibold mb-1">{b.label}</p>
+            <p className="text-sm font-semibold mb-1">
+              <MathText text={b.label} />
+            </p>
             <svg
               viewBox={`0 0 ${W + 4} ${H + 4}`}
               className="w-full max-w-lg h-auto"

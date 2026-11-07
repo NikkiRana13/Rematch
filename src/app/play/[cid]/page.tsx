@@ -71,6 +71,18 @@ export default function PlayPage({ params }: { params: Promise<{ cid: string }> 
     }
   }, [cid]);
 
+  // Show feedback immediately, and refresh score/progress from the server in the background
+  // so the header reflects the answer that was just saved.
+  const showFeedback = useCallback(
+    (f: Feedback) => {
+      setFeedback(f);
+      api<PlayState>(`/api/play/${cid}`)
+        .then(setState)
+        .catch(() => {});
+    },
+    [cid],
+  );
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
@@ -137,7 +149,7 @@ export default function PlayPage({ params }: { params: Promise<{ cid: string }> 
       {feedback ? (
         <FeedbackCard feedback={feedback} onContinue={continueFlow} />
       ) : (
-        <StepView state={state} cid={cid} onFeedback={setFeedback} onAdvance={continueFlow} headingRef={headingRef} />
+        <StepView state={state} cid={cid} onFeedback={showFeedback} onAdvance={continueFlow} headingRef={headingRef} />
       )}
     </div>
   );
