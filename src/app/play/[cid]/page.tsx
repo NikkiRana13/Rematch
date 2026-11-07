@@ -115,10 +115,22 @@ export default function PlayPage({ params }: { params: Promise<{ cid: string }> 
           <p>
             <strong>{state.score.initialPoints}</strong> first-try pts · <strong className="text-green">{state.score.comebackPoints}</strong> comeback pts
           </p>
-          <label className="block text-navy-soft" htmlFor="progress">
+          <p className="text-navy-soft" id="progress-label">
             {state.progress.answered} of {state.progress.total} questions answered
-          </label>
-          <progress id="progress" className="w-40 accent-violet" max={state.progress.total} value={state.progress.answered} />
+          </p>
+          <div
+            role="progressbar"
+            aria-labelledby="progress-label"
+            aria-valuemin={0}
+            aria-valuemax={state.progress.total}
+            aria-valuenow={state.progress.answered}
+            className="ml-auto mt-1 h-2.5 w-40 overflow-hidden rounded-full bg-cream-2"
+          >
+            <div
+              className="h-full rounded-full bg-violet transition-all"
+              style={{ width: `${state.progress.total ? (100 * state.progress.answered) / state.progress.total : 0}%` }}
+            />
+          </div>
         </div>
       </div>
 

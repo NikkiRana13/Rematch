@@ -173,7 +173,7 @@ export function studentFeedback(q: Question, attempt: Attempt, analysis: Analysi
   let idea: string | null = null;
   if (attempt.kind === "comeback") {
     message = attempt.isCorrect
-      ? "Comeback complete! You used what you practised. +50 comeback points."
+      ? "You used what you practised — nice work."
       : "Thanks for trying the comeback question. Every attempt helps you and your teacher see what to practise next.";
   } else if (attempt.isCorrect) {
     message = "Nice work — that's correct! +100 points.";

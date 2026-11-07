@@ -1,3 +1,4 @@
+import { skillInfo } from "./content/taxonomy";
 import type { Attempt, Question, SkillId, Subject } from "./types";
 
 export interface SprintRecommendation {
@@ -56,7 +57,7 @@ export function recommendNextSprint(subject: Subject, history: Attempt[], bank: 
     const picks = eligible.filter((q) => q.skill === skill).sort(byFreshness).slice(0, R.maxPerFocusSkill);
     chosen.push(...picks);
     rationale.push(
-      `${skill}: ${s.errors} incorrect of ${s.total} recent first attempts → up to ${R.maxPerFocusSkill} focus questions.`,
+      `${skillInfo(skill).label}: ${s.errors} incorrect of ${s.total} recent first attempts → up to ${R.maxPerFocusSkill} focus questions.`,
     );
   }
 
@@ -75,7 +76,7 @@ export function recommendNextSprint(subject: Subject, history: Attempt[], bank: 
     if (chosen.length >= R.targetLength) break;
     if (!chosen.includes(q)) chosen.push(q);
   }
-  if (reviewSkills.length) rationale.push(`Review: ${reviewSkills.join(", ")} (other skills with verified questions).`);
+  if (reviewSkills.length) rationale.push(`Review: ${reviewSkills.map((k) => skillInfo(k).label).join(", ")} (other skills with verified questions).`);
   if (!focusSkills.length) rationale.push("No skill met the repeated-error rule; suggesting a balanced review.");
 
   return { questionIds: chosen.map((q) => q.id), focusSkills, reviewSkills, rationale };

@@ -140,6 +140,7 @@ function Dashboard({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null);
   const [updated, setUpdated] = useState<string | null>(null);
   const [skillFilter, setSkillFilter] = useState("all");
+  const [showAll, setShowAll] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -227,7 +228,7 @@ function Dashboard({ id }: { id: string }) {
             </div>
           </section>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2 items-start">
             <Card>
               <h2 className="text-xl font-bold">Skill accuracy (first attempts)</h2>
               <p className="text-xs text-navy-soft mb-4">Correct first attempts / all first attempts. Comebacks are excluded. Simple accuracy, not a mastery score.</p>
@@ -304,7 +305,7 @@ function Dashboard({ id }: { id: string }) {
             </Card>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className={`grid gap-4 ${a.readAloud ? "lg:grid-cols-2" : ""}`}>
             <Card>
               <h2 className="text-xl font-bold">Needs your review ({a.reviewCases.length})</h2>
               <p className="text-xs text-navy-soft mb-3">Clarification requests, unclear or out-of-scope reasoning, and unavailable analyses.</p>
@@ -372,10 +373,15 @@ function Dashboard({ id }: { id: string }) {
           <p className="text-sm text-navy-soft">No responses yet.</p>
         ) : (
           <ul className="space-y-3">
-            {responses.map((r) => (
+            {(showAll ? responses : responses.slice(0, 10)).map((r) => (
               <ResponseRow key={r.attemptId} r={r} subject={c.subject} onChange={load} />
             ))}
           </ul>
+        )}
+        {responses.length > 10 && (
+          <Button variant="secondary" className="mt-4" onClick={() => setShowAll((v) => !v)} aria-expanded={showAll}>
+            {showAll ? "Show newest 10" : `Show all ${responses.length} responses`}
+          </Button>
         )}
       </Card>
     </div>
