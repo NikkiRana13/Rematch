@@ -105,7 +105,9 @@ body {
    Accessibility adjustments vs. the original: pink fills carry dark text,
    and pink used as text is darkened to keep readable contrast.
    ------------------------------------------------------------------------ */
-.theme-student {
+/* Shared palette: students and teachers see the same colours. */
+.theme-student,
+.theme-teacher {
   --cream: #fffbef;
   --cream-2: #fef6de;
   --surface: #fef6de;
@@ -119,6 +121,23 @@ body {
   --accent-gold: #f3b60b;
   --secondary-icon: #595aaf;
   --line: #1c1d63;
+  background: var(--cream);
+  color: var(--navy);
+}
+/* Teacher side: same colours, regular Lexend type, no pixel styling.
+   Hairlines use a soft tint of the navy so dense dashboards stay calm. */
+.theme-teacher {
+  --line: #cdc8e3;
+  font-family: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
+}
+.theme-teacher section.rounded-3xl {
+  box-shadow: 0 2px 0 rgba(28, 29, 99, 0.08);
+}
+:is(.theme-student, .theme-teacher) .bg-violet { color: #1a1c2c; }
+:is(.theme-student, .theme-teacher) :is(button, a).bg-violet:hover { background: var(--accent-gold); }
+:is(.theme-student, .theme-teacher) .text-violet { color: var(--violet-strong); }
+
+.theme-student {
   --font-body: "Courier New", Courier, monospace;
   --font-title: var(--font-press-start), ui-monospace, monospace;
   background: var(--cream);
@@ -149,10 +168,7 @@ body {
   font-family: var(--font-body);
   font-weight: 700;
 }
-/* Hot-pink fills: dark text for contrast (white on #ff36be is below 4.5:1). */
-.theme-student .bg-violet { color: #1a1c2c; }
-.theme-student :is(button, a).bg-violet:hover { background: var(--accent-gold); }
-.theme-student .text-violet { color: var(--violet-strong); }
+/* Hot-pink fills carry dark text for contrast (shared rule above). */
 .theme-student mark,
 .theme-student .bg-amber-soft { background: var(--accent-gold); color: var(--navy); }
 

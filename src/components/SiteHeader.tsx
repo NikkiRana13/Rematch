@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { A11yControls } from "./a11y";
 import { useSession } from "./session";
+import { siteArea } from "./ThemeShell";
 
 export function SiteHeader() {
   const { session, refresh } = useSession();
@@ -13,12 +14,22 @@ export function SiteHeader() {
   useEffect(() => {
     void refresh();
   }, [path, refresh]);
-  const nav = [
-    { href: "/join", label: "Join" },
-    { href: "/me", label: "My sprints" },
-    ...(session?.learner ? [{ href: "/roadmap", label: "My roadmap" }] : []),
-    { href: "/host", label: "Host" },
-  ];
+  const area = siteArea(path);
+  // Each side of the site shows only its own navigation.
+  const nav: { href: string; label: string; active: boolean }[] =
+    area === "student"
+      ? [
+          { href: "/join", label: "Join", active: path.startsWith("/join") },
+          { href: "/me", label: "My sprints", active: path.startsWith("/me") || path.startsWith("/play") },
+          ...(session?.learner ? [{ href: "/roadmap", label: "My roadmap", active: path.startsWith("/roadmap") }] : []),
+        ]
+      : area === "teacher"
+        ? [
+            { href: "/host", label: "Dashboard", active: path === "/host" || path.startsWith("/host/competitions") },
+            { href: "/host/plans", label: "Learning plans", active: path.startsWith("/host/plans") },
+            { href: "/host/overview", label: "Class overview", active: path.startsWith("/host/overview") },
+          ]
+        : [];
   return (
     <header className="border-b border-line bg-cream/90 backdrop-blur sticky top-0 z-10">
       {session?.mode === "local-demo" && (
@@ -34,7 +45,7 @@ export function SiteHeader() {
       )}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4 flex-wrap">
         <Link href="/" className="font-bold text-xl tracking-tight flex items-center gap-2">
-          <span aria-hidden="true" className="inline-grid place-items-center h-8 w-8 rounded-xl bg-violet text-white text-base">
+          <span aria-hidden="true" className="inline-grid place-items-center h-8 w-8 rounded-xl bg-violet text-base">
             R
           </span>
           Rematch
@@ -45,8 +56,8 @@ export function SiteHeader() {
               <li key={n.href}>
                 <Link
                   href={n.href}
-                  aria-current={path.startsWith(n.href) ? "page" : undefined}
-                  className={`rounded-lg px-2.5 py-1.5 hover:bg-violet-soft ${path.startsWith(n.href) ? "bg-violet-soft text-violet-strong" : ""}`}
+                  aria-current={n.active ? "page" : undefined}
+                  className={`rounded-lg px-2.5 py-1.5 hover:bg-violet-soft ${n.active ? "bg-violet-soft text-violet-strong" : ""}`}
                 >
                   {n.label}
                 </Link>
@@ -54,6 +65,11 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
+        {area !== "start" && (
+          <Link href="/" className="text-sm underline text-navy-soft hover:text-violet-strong">
+            {area === "student" ? "I'm a teacher" : "I'm a student"}
+          </Link>
+        )}
         <A11yControls />
       </div>
     </header>
