@@ -386,12 +386,12 @@ describe("teacher-only hosting", () => {
   });
 });
 
-describe("local test competition (TEST55)", () => {
+describe("local test competition (123456)", () => {
   it("is seeded open with fixed code, id and questions, joinable, and on the demo roadmap", async () => {
     const { LOCAL_TEST_CODE, LOCAL_TEST_COMPETITION_ID, LOCAL_TEST_QUESTION_IDS } = await import("./localTestCompetition");
     const [c] = await db.select("competitions", { eq: { roomCode: LOCAL_TEST_CODE } });
     expect(c).toMatchObject({ id: LOCAL_TEST_COMPETITION_ID, status: "open", questionIds: LOCAL_TEST_QUESTION_IDS, ownerId: teacher.id });
-    const { learner } = await joinCompetition(db, null, { roomCode: "test55", nickname: "Tester" });
+    const { learner } = await joinCompetition(db, null, { roomCode: "123456", nickname: "Tester" });
     const state = await getPlayState(db, learner, c.id);
     expect(state.step).toMatchObject({ type: "question", questionId: LOCAL_TEST_QUESTION_IDS[0] });
     const { listRoadmaps } = await import("./roadmap");

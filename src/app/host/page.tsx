@@ -183,8 +183,8 @@ function Dashboard({ host, session }: { host: NonNullable<SessionInfo["host"]>; 
       {session.mode === "local-demo" && (
         <p className="text-sm text-navy-soft">
           Local demo tip: open{" "}
-          <Link className="underline" href="/join?code=TEST55">
-            /join?code=TEST55
+          <Link className="underline" href="/join?code=123456">
+            /join?code=123456
           </Link>{" "}
           in a private window to play the hardcoded <strong>Local Test Sprint</strong> as a student while watching its{" "}
           <Link className="underline" href="/host/competitions/00000000-0000-4000-8000-000000007e57">

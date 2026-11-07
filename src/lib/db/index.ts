@@ -30,7 +30,7 @@ function loadLocal(): Db {
     }
   };
   const db = new MemoryDb(store ?? seedLocalStore(), persist);
-  // Older local data files get the hardcoded TEST55 competition too.
+  // Older local data files get the hardcoded 123456 competition too.
   const added = store ? ensureLocalTestCompetition(db.store) : false;
   if (!store || added) persist();
   return db;

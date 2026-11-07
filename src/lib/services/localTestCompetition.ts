@@ -6,7 +6,7 @@
 import type { Store } from "../db/memory";
 import type { Competition } from "../types";
 
-export const LOCAL_TEST_CODE = "TEST55";
+export const LOCAL_TEST_CODE = "123456";
 export const LOCAL_TEST_COMPETITION_ID = "00000000-0000-4000-8000-000000007e57";
 
 /** Pizza and juice are adaptive (targeted practice + comeback); place value is not. */
@@ -16,7 +16,7 @@ export function localTestCompetition(): Competition {
   return {
     id: LOCAL_TEST_COMPETITION_ID,
     ownerId: "demo-teacher",
-    title: "Local Test Sprint (TEST55)",
+    title: "Local Test Sprint (123456)",
     description: "Hardcoded local-only competition for testing. Reset demo data to clear its answers.",
     subject: "math",
     gradeLevel: 5,
