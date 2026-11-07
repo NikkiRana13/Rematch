@@ -3,6 +3,8 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, api, post } from "@/components/fetcher";
 import { ClarifyView, FeedbackCard, PracticeView, QuestionForm, type Feedback, type Step, type StudentQuestion, type Practice } from "@/components/sprint";
+import { QuestMap } from "@/components/QuestMap";
+import { useRouter } from "next/navigation";
 import { Alert, Button, Card, LinkButton, Spinner, SubjectBadge } from "@/components/ui";
 
 interface PlayState {
@@ -23,6 +25,9 @@ export default function PlayPage({ params }: { params: Promise<{ cid: string }> 
   const [error, setError] = useState<ApiError | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const router = useRouter();
+  // The quest map is shown first each time a sprint is opened.
+  const [started, setStarted] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -73,6 +78,23 @@ export default function PlayPage({ params }: { params: Promise<{ cid: string }> 
   }
   if (!state) return <Spinner label="Loading your sprint" />;
 
+  if (!started) {
+    const done = state.step.type === "done" || state.step.type === "closed";
+    return (
+      <QuestMap
+        nickname={state.participant.nickname}
+        title={state.competition.title}
+        subject={state.competition.subject}
+        initialPoints={state.score.initialPoints}
+        comebackPoints={state.score.comebackPoints}
+        answered={state.progress.answered}
+        total={state.progress.total}
+        done={done}
+        onStart={() => (done ? router.push(`/play/${cid}/results`) : setStarted(true))}
+      />
+    );
+  }
+
   const continueFlow = () => {
     setFeedback(null);
     setState(null);
@@ -81,7 +103,7 @@ export default function PlayPage({ params }: { params: Promise<{ cid: string }> 
 
   return (
     <div className="space-y-5 max-w-3xl mx-auto">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="pixel-box flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div className="space-y-1">
           <SubjectBadge subject={state.competition.subject} />
           <p className="font-semibold">{state.competition.title}</p>

@@ -24,7 +24,7 @@ export function LinkButton({ variant = "primary", className = "", ...props }: Co
 
 export function Card({ className = "", children, ...rest }: ComponentProps<"section">) {
   return (
-    <section className={`rounded-3xl border border-line bg-white p-5 sm:p-6 shadow-[0_1px_0_rgba(27,42,74,0.04)] ${className}`} {...rest}>
+    <section className={`rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-[0_1px_0_rgba(27,42,74,0.04)] ${className}`} {...rest}>
       {children}
     </section>
   );
