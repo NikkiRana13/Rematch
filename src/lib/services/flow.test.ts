@@ -374,3 +374,14 @@ describe("class overview filters", () => {
     expect(otherHost.selectedIds).toEqual([]);
   });
 });
+
+describe("teacher-only hosting", () => {
+  it("refuses hosting actions for non-teacher accounts", async () => {
+    const studentHost: Host = { id: "student-acct", displayName: "Student", hostRole: "student", createdAt: "t" };
+    await expect(createCompetition(db, studentHost, { title: "x", description: "", subject: "math", gradeLevel: 5, questionIds: [] })).rejects.toMatchObject({ status: 403 });
+    await expect(getHostResults(db, studentHost, mathId)).rejects.toMatchObject({ status: 403 });
+    const { listPlans, createPlan } = await import("./plans");
+    await expect(listPlans(db, studentHost)).rejects.toMatchObject({ status: 403 });
+    await expect(createPlan(db, studentHost, { title: "p", subject: "math", courseLabel: "", description: "", unitLabel: "Lecture" })).rejects.toMatchObject({ status: 403 });
+  });
+});

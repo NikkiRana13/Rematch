@@ -1,4 +1,4 @@
-import type { Attempt, Competition, Learner, Participant } from "./types";
+import type { Attempt, Competition, Host, Learner, Participant } from "./types";
 
 export class AuthzError extends Error {
   constructor(
@@ -37,4 +37,11 @@ export function assertCompetitionOpen(competition: Competition): void {
 /** Hosts may only use library content (ownerId null) or their own content. */
 export function canHostUseContent(hostId: string, item: { ownerId: string | null }): boolean {
   return item.ownerId === null || item.ownerId === hostId;
+}
+
+/** Only teacher accounts can host competitions or learning plans. */
+export function assertTeacherHost(host: Host | null): Host {
+  if (!host) throw new AuthzError(401, "Sign in as a host to continue.");
+  if (host.hostRole !== "teacher") throw new AuthzError(403, "Only teacher accounts can host.");
+  return host;
 }

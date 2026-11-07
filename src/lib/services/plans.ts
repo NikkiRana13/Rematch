@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { AuthzError, canHostUseContent } from "../authz";
+import { assertTeacherHost, AuthzError, canHostUseContent } from "../authz";
 import { isSkillId, skillInfo } from "../content/taxonomy";
 import type { Db } from "../db/types";
 import { DEFAULT_EVIDENCE_RULE, validateRule } from "../progress";
@@ -67,8 +67,7 @@ export const OverrideInput = z.object({
 });
 
 function requireHost(host: Host | null): Host {
-  if (!host) throw new AuthzError(401, "Sign in as a host to continue.");
-  return host;
+  return assertTeacherHost(host);
 }
 
 export async function ownedPlan(db: Db, host: Host | null, id: string): Promise<LearningPlan> {

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { assertHostOwnsCompetition, AuthzError, canHostUseContent } from "../authz";
+import { assertHostOwnsCompetition, assertTeacherHost, AuthzError, canHostUseContent } from "../authz";
 import { computeCompetitionAnalytics, latestAnalysisByAttempt, effectiveClassification } from "../analytics";
 import { isCategoryForSubject, isSkillId, skillInfo, SKILLS, SUBJECT_MISCONCEPTIONS } from "../content/taxonomy";
 import { INTERVENTIONS } from "../content/seed";
@@ -63,13 +63,13 @@ export const OverrideInput = z.object({
 });
 
 async function ownedCompetition(db: Db, host: Host | null, id: string): Promise<Competition> {
+  const h = assertTeacherHost(host);
   const [c] = await db.select("competitions", { eq: { id } });
-  return assertHostOwnsCompetition(host?.id ?? null, c ?? null);
+  return assertHostOwnsCompetition(h.id, c ?? null);
 }
 
 function requireHost(host: Host | null): Host {
-  if (!host) throw new AuthzError(401, "Sign in as a host to continue.");
-  return host;
+  return assertTeacherHost(host);
 }
 
 export async function listCompetitions(db: Db, hostIn: Host | null) {

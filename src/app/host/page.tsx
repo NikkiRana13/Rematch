@@ -64,7 +64,7 @@ function Dashboard({ host, session }: { host: NonNullable<SessionInfo["host"]>; 
         <div>
           <h1 className="text-3xl font-bold">Host dashboard</h1>
           <p className="text-navy-soft">
-            Signed in as {host.displayName} · {host.hostRole === "student" ? "student host" : "teacher"}
+            Signed in as {host.displayName} · teacher
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">

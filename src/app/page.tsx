@@ -31,7 +31,7 @@ export default function Home() {
               Host a competition
             </LinkButton>
           </div>
-          <p className="text-sm text-navy-soft">Teachers and students can both host. Hosting only shows results for sprints you create.</p>
+          <p className="text-sm text-navy-soft">Teachers host sprints and see results only for the sprints they create.</p>
         </div>
         <Card className="bg-gradient-to-br from-white to-violet-soft/60">
           <h2 className="font-bold text-lg mb-3">The learning loop</h2>

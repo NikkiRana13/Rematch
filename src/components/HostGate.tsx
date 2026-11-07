@@ -12,6 +12,19 @@ export function HostGate({ children }: { children: (host: NonNullable<SessionInf
   if (!session) return <Spinner label="Checking sign-in" />;
   if (session.mode === "unconfigured")
     return <Alert tone="rose" role="alert" title="Not configured">Set Supabase environment variables to enable hosting. See the README.</Alert>;
+  if (session.hostNotTeacher)
+    return (
+      <Card className="max-w-md mx-auto space-y-3">
+        <h1 className="text-2xl font-bold">Hosting is for teachers</h1>
+        <p className="text-navy-soft">This account isn&apos;t a teacher account, so it can&apos;t create or manage competitions. Students can join sprints with a room code instead.</p>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => post("/api/auth/logout").then(refresh)}>Sign out</Button>
+          <a className="font-semibold underline self-center" href="/join">
+            Join a sprint
+          </a>
+        </div>
+      </Card>
+    );
   if (!session.host) return <SignIn session={session} onSignedIn={refresh} />;
   return <>{children(session.host, session)}</>;
 }
@@ -21,7 +34,6 @@ function SignIn({ session, onSignedIn }: { session: SessionInfo; onSignedIn: () 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [hostRole, setHostRole] = useState<"teacher" | "student">("teacher");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -60,7 +72,7 @@ function SignIn({ session, onSignedIn }: { session: SessionInfo; onSignedIn: () 
   return (
     <Card className="max-w-md mx-auto space-y-4">
       <h1 className="text-2xl font-bold">{mode === "login" ? "Host sign-in" : "Create a host account"}</h1>
-      <p className="text-sm text-navy-soft">Teachers and students can host. You&apos;ll only see results for competitions you create.</p>
+      <p className="text-sm text-navy-soft">Hosting is for teachers. You&apos;ll only see results for competitions you create.</p>
       <form
         className="space-y-3"
         onSubmit={(e) => {
@@ -70,7 +82,7 @@ function SignIn({ session, onSignedIn }: { session: SessionInfo; onSignedIn: () 
               await post("/api/auth/login", { email, password });
               onSignedIn();
             } else {
-              const r = await post<{ needsEmailConfirmation: boolean }>("/api/auth/signup", { email, password, displayName, hostRole });
+              const r = await post<{ needsEmailConfirmation: boolean }>("/api/auth/signup", { email, password, displayName });
               if (r.needsEmailConfirmation) setInfo("Check your email to confirm your account, then sign in.");
               else onSignedIn();
             }
@@ -82,17 +94,6 @@ function SignIn({ session, onSignedIn }: { session: SessionInfo; onSignedIn: () 
             <Field label="Display name" htmlFor="dn">
               <input id="dn" className={inputCls} value={displayName} onChange={(e) => setDisplayName(e.target.value)} required />
             </Field>
-            <fieldset>
-              <legend className="font-semibold text-sm mb-1">I&apos;m hosting as a…</legend>
-              <div className="flex gap-4">
-                {(["teacher", "student"] as const).map((r) => (
-                  <label key={r} className="inline-flex items-center gap-2">
-                    <input type="radio" name="role" checked={hostRole === r} onChange={() => setHostRole(r)} className="accent-violet" />
-                    {r === "teacher" ? "Teacher" : "Student"}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
           </>
         )}
         <Field label="Email" htmlFor="em">

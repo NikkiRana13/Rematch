@@ -25,11 +25,10 @@ Go to **[/join](https://rematch-phi.vercel.app/join)** and enter one of these ro
 | **EY54Y9** | Room 5B Math: Fraction Face-off | 10 demo students |
 | **S2TVM9** | Room 5C Reading: Words & Evidence | 6 demo students |
 | **FDNSSV** | Room 5C Math: Number Power | 6 demo students |
-| **2UT7RF** | Jordan's Fraction Challenge (hosted by a student) | 4 demo students |
 
 **To see the full loop**, join **JJVNCC** and answer the pizza question with **Noah**, explaining *"8 is bigger than 4 so he has more."* You'll get a worked example with fraction bars, then a comeback question worth 50 points.
 
-**To host**, go to **[/host](https://rematch-phi.vercel.app/host)** and create an account. Teachers and students can both host, and you only ever see results for competitions you create. Use **Load labelled demo data** to fill your account with example classes.
+**To host**, go to **[/host](https://rematch-phi.vercel.app/host)** and create a teacher account. Hosting is for teachers only, and you only ever see results for competitions you create. Use **Load labelled demo data** to fill your account with example classes.
 
 ---
 
@@ -190,7 +189,7 @@ It's clearly labelled, it isn't a shared database, and it's disabled automatical
    set -a; . ./.env.local; set +a
    npm run populate:demo            # add -- --reset to rebuild
    ```
-   This creates two demo host logins and 8 competitions. Fictional students are driven through the real scoring, analysis, practice and comeback services, then labelled "(synthetic)".
+   This creates a demo teacher login and 7 competitions. Fictional students are driven through the real scoring, analysis, practice and comeback services, then labelled "(synthetic)".
    Then run `npm run populate:plans` to add two fictional learning plans and demo learners. Their statuses (demonstrated, needs practice, in progress, not assessed) come from real attempt records. Their resume codes are written to the gitignored `demo-learner-codes.local.txt`.
 
 `supabase/seed.sql` is generated from `src/lib/content/seed.ts` (`npm run seed:sql`), so local and hosted answer keys never drift apart.

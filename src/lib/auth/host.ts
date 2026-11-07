@@ -62,8 +62,14 @@ export function verifyDemoHostCookie(raw: string | undefined): string | null {
   return id;
 }
 
-/** Returns the signed-in host, or null. Demo sessions are only honoured in local demo mode. */
+/** The signed-in TEACHER host, or null. Non-teacher accounts can't host. */
 export async function getHost(): Promise<Host | null> {
+  const account = await getHostAccount();
+  return account?.hostRole === "teacher" ? account : null;
+}
+
+/** The signed-in host account of any role (used to explain why hosting is refused). */
+export async function getHostAccount(): Promise<Host | null> {
   const mode = appMode();
   if (mode === "local-demo") {
     const id = verifyDemoHostCookie((await cookies()).get(DEMO_HOST_COOKIE)?.value);
@@ -83,7 +89,8 @@ export async function getHost(): Promise<Host | null> {
   const host: Host = {
     id: data.user.id,
     displayName: String(meta.display_name ?? data.user.email?.split("@")[0] ?? "Host").slice(0, 60),
-    hostRole: meta.host_role === "student" ? "student" : "teacher",
+    // Hosting is teacher-only; existing student-host accounts keep their stored role and are refused.
+    hostRole: "teacher",
     createdAt: new Date().toISOString(),
   };
   try {

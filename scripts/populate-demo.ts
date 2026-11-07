@@ -204,7 +204,7 @@ async function markSynthetic(competitionId: string, learners: Learner[]) {
   if (learners.length) await admin.from("learners").delete().in("id", learners.map((l) => l.id));
 }
 
-async function ensureHost(email: string, displayName: string, hostRole: "teacher" | "student"): Promise<Host> {
+async function ensureHost(email: string, displayName: string, hostRole: "teacher"): Promise<Host> {
   const { data: list } = await admin.auth.admin.listUsers();
   let user = list.users.find((u) => u.email === email);
   if (!user) {
@@ -271,11 +271,10 @@ async function main() {
 
   // 2. Demo hosts.
   const rivera = await ensureHost("rivera.demo@rematch-demo.app", "Ms. Rivera (demo teacher)", "teacher");
-  const jordan = await ensureHost("jordan.demo@rematch-demo.app", "Jordan (demo student host)", "student");
-  const existing = await db.select("competitions", { in: { column: "ownerId", values: [rivera.id, jordan.id] } });
+  const existing = await db.select("competitions", { in: { column: "ownerId", values: [rivera.id] } });
   if (existing.length) {
     if (!process.argv.includes("--reset")) throw new Error("Demo competitions already exist. Rerun with --reset to replace them.");
-    await admin.from("competitions").delete().in("owner_id", [rivera.id, jordan.id]);
+    await admin.from("competitions").delete().in("owner_id", [rivera.id]);
     console.log(`Removed ${existing.length} previous demo competitions.`);
   }
 
@@ -289,9 +288,6 @@ async function main() {
     { title: "Week 1 Warm-up: Inference", description: "Last week's sprint.", subject: "reading", questionIds: ["q-read-inf-amina", "q-read-vocab-drooping", "q-read-main-amina"], students: 8, final: "closed" },
     { title: "Next week: Inference review (draft)", description: "Draft — not launched.", subject: "reading", questionIds: ["q-read-inf-kofi", "q-read-inf-patel", "q-read-evidence-kofi"], students: 0, final: "draft" },
   ];
-  const jordanPlans: Plan[] = [
-    { title: "Jordan's Fraction Challenge", description: "A student-hosted fraction sprint.", subject: "math", questionIds: ["q-math-frac-pizza", "q-math-frac-paint", "q-math-frac-granola"], students: 4, final: "open" },
-  ];
 
   const results: { host: string; title: string; code: string; status: string; participants: number }[] = [];
   let offset = 0;
@@ -299,10 +295,6 @@ async function main() {
     const c = await runPlan(rivera, p, offset);
     offset += 3;
     results.push({ host: "Ms. Rivera", title: p.title, code: c.roomCode, status: p.final, participants: c.participants });
-  }
-  for (const p of jordanPlans) {
-    const c = await runPlan(jordan, p, offset);
-    results.push({ host: "Jordan", title: p.title, code: c.roomCode, status: p.final, participants: c.participants });
   }
   console.log("\nRESULTS_JSON " + JSON.stringify(results));
 }

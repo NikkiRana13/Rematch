@@ -2,16 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { A11yControls } from "./a11y";
 import { useSession } from "./session";
 
 export function SiteHeader() {
-  const { session } = useSession();
+  const { session, refresh } = useSession();
   const path = usePathname();
+  // Re-check sign-in on navigation so "My roadmap" appears right after joining or signing in.
+  useEffect(() => {
+    void refresh();
+  }, [path, refresh]);
   const nav = [
     { href: "/join", label: "Join" },
     { href: "/me", label: "My sprints" },
-    { href: "/roadmap", label: "My roadmap" },
+    ...(session?.learner ? [{ href: "/roadmap", label: "My roadmap" }] : []),
     { href: "/host", label: "Host" },
   ];
   return (

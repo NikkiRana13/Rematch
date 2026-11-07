@@ -7,6 +7,7 @@ export interface SessionInfo {
   mode: "supabase" | "local-demo" | "unconfigured";
   aiConfigured: boolean;
   host: { id: string; displayName: string; hostRole: "teacher" | "student" } | null;
+  hostNotTeacher?: boolean;
   learner: { nickname: string } | null;
   demoHosts: { id: string; displayName: string; hostRole: string }[];
 }

@@ -11,14 +11,13 @@ export async function POST(req: Request) {
         email: z.string().email(),
         password: z.string().min(8, "Use at least 8 characters."),
         displayName: z.string().trim().min(1).max(60),
-        hostRole: z.enum(["teacher", "student"]),
       })
       .parse(await readJson(req));
     const supabase = await supabaseAuthClient();
     const { data, error } = await supabase.auth.signUp({
       email: input.email,
       password: input.password,
-      options: { data: { display_name: input.displayName, host_role: input.hostRole } },
+      options: { data: { display_name: input.displayName, host_role: "teacher" } },
     });
     if (error) return json({ error: error.message, code: "signup_failed" }, 400);
     return json({ ok: true, needsEmailConfirmation: !data.session });

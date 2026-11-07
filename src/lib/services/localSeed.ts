@@ -7,7 +7,7 @@ import { buildDemoPlans } from "./demoPlans";
 /** Fictional demo host accounts (local demo mode only). */
 export const DEMO_HOSTS: Host[] = [
   { id: "demo-teacher", displayName: "Ms. Rivera (fictional demo teacher)", hostRole: "teacher", createdAt: "2026-01-01T00:00:00.000Z" },
-  { id: "demo-student-host", displayName: "Jordan (fictional demo student host)", hostRole: "student", createdAt: "2026-01-01T00:00:00.000Z" },
+  { id: "demo-teacher-2", displayName: "Mr. Okafor (fictional demo teacher)", hostRole: "teacher", createdAt: "2026-01-01T00:00:00.000Z" },
 ];
 
 export function seedLocalStore(): Store {
