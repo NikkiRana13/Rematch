@@ -44,11 +44,9 @@ export function SiteHeader() {
         </div>
       )}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4 flex-wrap">
-        <Link href="/" className="font-bold text-xl tracking-tight flex items-center gap-2">
-          <span aria-hidden="true" className="inline-grid place-items-center h-8 w-8 rounded-xl bg-violet text-base">
-            R
-          </span>
-          Rematch
+        <Link href="/" className="flex items-center" aria-label="Rematch home">
+          {/* eslint-disable-next-line @next/next/no-img-element -- small static SVG logo */}
+          <img src="/rematch-logo.svg" alt="Rematch" width={138} height={36} className="h-9 w-auto [image-rendering:pixelated]" />
         </Link>
         <nav aria-label="Main" className="flex-1">
           <ul className="flex gap-1 sm:gap-2 text-sm font-medium">
