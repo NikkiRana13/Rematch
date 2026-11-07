@@ -207,6 +207,16 @@ describe("AI progress guide", () => {
     expect(listed.plans.length).toBe(2);
   });
 
+  it("rule-based 'why' explains the specific objective that was asked about", async () => {
+    const { term, theo } = await demoInput();
+    const r = await getRoadmap(db, theo, term.id);
+    const obj = r.lectures[0].objectives[0];
+    const g = await explainProgress(db, theo, term.id, "why", { objectiveId: obj.id }, null);
+    expect(g.summary).toContain(obj.text);
+    expect(g.summary).toContain("Needs practice");
+    expect(g.practiceNeeds.map((p) => p.objectiveId)).toEqual([obj.id]);
+  });
+
   it("rejects AI output with invented objectives, attempts, resources, or mastery claims", async () => {
     const { term, theo } = await demoInput();
     let captured: GuideInput | null = null;

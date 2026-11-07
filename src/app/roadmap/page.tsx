@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, api, post } from "@/components/fetcher";
 import { MathText } from "@/components/MathText";
 import { fmtDate, KIND_LABEL, ProgressBar, RuleNote, StatusPill, statusLabel, type ObjectiveStatus } from "@/components/roadmap";
@@ -194,7 +194,9 @@ function NoLearner({ onResumed }: { onResumed: () => void }) {
 function PlanRoadmap({ planId }: { planId: string }) {
   const [r, setR] = useState<Roadmap | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [focusObjective, setFocusObjective] = useState<string | null>(null);
+  // A counter makes every "Ask why" click a new request, even for the same objective.
+  const [whyRequest, setWhyRequest] = useState<{ objectiveId: string; n: number } | null>(null);
+  const askWhy = useCallback((objectiveId: string) => setWhyRequest((prev) => ({ objectiveId, n: (prev?.n ?? 0) + 1 })), []);
   useEffect(() => {
     api<Roadmap>(`/api/roadmap/${planId}`)
       .then(setR)
@@ -247,7 +249,7 @@ function PlanRoadmap({ planId }: { planId: string }) {
             </p>
           )}
         </Card>
-        <ExplainPanel planId={planId} roadmap={r} focusObjective={focusObjective} objText={objText} />
+        <ExplainPanel planId={planId} roadmap={r} whyRequest={whyRequest} objText={objText} />
       </div>
 
       <RuleNote ruleText={r.ruleText} />
@@ -257,7 +259,7 @@ function PlanRoadmap({ planId }: { planId: string }) {
           {r.plan.unitLabel}s
         </h2>
         {r.lectures.map((l) => (
-          <LectureCard key={l.id} planId={planId} unitLabel={r.plan.unitLabel} lecture={l} onExplain={setFocusObjective} />
+          <LectureCard key={l.id} planId={planId} unitLabel={r.plan.unitLabel} lecture={l} onExplain={askWhy} />
         ))}
       </section>
 
@@ -396,7 +398,20 @@ function ObjectiveRow({ planId, o, onExplain }: { planId: string; o: Objective; 
   );
 }
 
-function ExplainPanel({ planId, roadmap, focusObjective, objText }: { planId: string; roadmap: Roadmap; focusObjective: string | null; objText: (id: string) => string }) {
+function ExplainPanel({
+  planId,
+  roadmap,
+  whyRequest,
+  objText,
+}: {
+  planId: string;
+  roadmap: Roadmap;
+  whyRequest: { objectiveId: string; n: number } | null;
+  objText: (id: string) => string;
+}) {
+  const panelRef = useRef<HTMLElement>(null);
+  const resultRef = useRef<HTMLParagraphElement>(null);
+  const focusObjective = whyRequest?.objectiveId ?? null;
   const [guide, setGuide] = useState<Guide | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -422,13 +437,20 @@ function ExplainPanel({ planId, roadmap, focusObjective, objText }: { planId: st
   );
 
   useEffect(() => {
-    // "Ask why" on an objective opens the explanation for it.
+    // "Ask why" on an objective: bring the panel into view and explain that objective.
+    if (!whyRequest) return;
+    panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (focusObjective) void ask("why", focusObjective);
-  }, [focusObjective, ask]);
+    void ask("why", whyRequest.objectiveId);
+  }, [whyRequest, ask]);
+
+  useEffect(() => {
+    // Move focus to the new answer so keyboard and screen-reader users land on it.
+    if (guide && !busy) resultRef.current?.focus();
+  }, [guide, busy]);
 
   return (
-    <Card aria-live="polite">
+    <Card aria-live="polite" ref={panelRef} className="scroll-mt-24">
       <h2 className="text-xl font-bold">Explain my progress</h2>
       <div className="flex flex-wrap gap-2 mt-3">
         {readyLecture && (
@@ -453,7 +475,9 @@ function ExplainPanel({ planId, roadmap, focusObjective, objText }: { planId: st
             {guide.source === "ai" ? <Badge tone="violet">AI explanation</Badge> : <Badge tone="navy">Rule-based summary</Badge>}
             {guide.errorCode && <Badge tone="amber">AI unavailable — showing your computed progress</Badge>}
           </div>
-          <p className="text-base">{guide.summary}</p>
+          <p ref={resultRef} tabIndex={-1} className="text-base">
+            {guide.summary}
+          </p>
           {guide.strengths.length > 0 && (
             <div>
               <p className="font-semibold">What you&apos;ve shown</p>

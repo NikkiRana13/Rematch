@@ -166,10 +166,10 @@ export function ruleBasedGuide(input: GuideInput, errorCode: string | null = nul
   const evidenceIds = (oid: string) => input.attempts.filter((a) => a.objectiveIds.includes(oid) && a.counted).map((a) => a.attemptId).slice(0, 4);
   const strengths = scope
     .filter((o) => o.progress.status === "demonstrated")
-    .map((o) => ({ objectiveId: o.id, explanation: `${o.text}: meets the progress rule (${o.progress.reasons[0] ?? ""})`, evidenceAttemptIds: evidenceIds(o.id) }));
+    .map((o) => ({ objectiveId: o.id, explanation: `Meets the progress rule. ${o.progress.reasons[0] ?? ""}`.trim(), evidenceAttemptIds: evidenceIds(o.id) }));
   const practiceNeeds = scope
     .filter((o) => o.progress.status === "needs_practice" || o.progress.status === "in_progress")
-    .map((o) => ({ objectiveId: o.id, explanation: `${o.text}: ${STATUS_LABEL[o.progress.status]}. ${o.progress.reasons.join(" ")}`, evidenceAttemptIds: evidenceIds(o.id) }));
+    .map((o) => ({ objectiveId: o.id, explanation: `${STATUS_LABEL[o.progress.status]}. ${o.progress.reasons.join(" ")}`, evidenceAttemptIds: evidenceIds(o.id) }));
   const notAssessed = scope.filter((o) => o.progress.status === "not_assessed");
   const next = r.nextStep;
   const nextObj = next ? all.find((o) => o.id === next.objectiveId) : null;
@@ -179,6 +179,9 @@ export function ruleBasedGuide(input: GuideInput, errorCode: string | null = nul
     summary = lec
       ? `${r.unitLabel} ${lec.number}: ${lec.demonstrated} of ${lec.required} required objectives meet the progress rule.${lec.status === "demonstrated" ? " The available evidence meets the rule for every required objective." : ""}`
       : "Here is your progress.";
+  } else if (input.ask === "why" && scope.length === 1) {
+    const o = scope[0];
+    summary = `“${o.text}” is ${STATUS_LABEL[o.progress.status]}. ${o.progress.reasons.join(" ")}`;
   } else summary = `${r.overall.demonstrated} of ${r.overall.total} objectives demonstrated in Rematch so far.`;
   return {
     source: "rule-based",
