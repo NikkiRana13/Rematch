@@ -282,15 +282,16 @@ export async function getHostResults(db: Db, hostIn: Host | null, id: string) {
         readAloudUsed: a.readAloudUsed,
         route: a.route,
         teacherReview: a.teacherReview,
+        // Synthetic demo rows are presented simply as demo data; the stored record keeps its true provider.
         analysis: la
           ? {
               status: la.status,
-              provider: la.provider,
-              model: la.model,
-              promptVersion: la.promptVersion,
+              provider: la.isSynthetic ? null : la.provider,
+              model: la.isSynthetic ? null : la.model,
+              promptVersion: la.isSynthetic ? null : la.promptVersion,
               category: la.category,
               evidenceQuote: la.evidenceQuote,
-              explanation: la.explanation,
+              explanation: la.isSynthetic ? "Demonstration classification for a fictional student." : la.explanation,
               errorCode: la.errorCode,
               synthetic: la.isSynthetic,
             }

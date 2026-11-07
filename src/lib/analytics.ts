@@ -185,7 +185,7 @@ export function computeCompetitionAnalytics(input: {
   for (const a of initial) {
     const la = latest.get(a.id);
     if (la) {
-      const key = la.isSynthetic ? "synthetic demo data" : la.provider;
+      const key = la.isSynthetic ? "demo data" : la.provider;
       analysisSources[key] = (analysisSources[key] ?? 0) + 1;
       if (la.status === "unavailable") unavailableAnalyses++;
     }

@@ -44,7 +44,7 @@ interface Results {
     reasoningStatus: string;
     clarificationText: string | null;
     readAloudUsed: boolean;
-    analysis: { status: string; provider: string; model: string | null; promptVersion: string; category: string | null; evidenceQuote: string | null; explanation: string | null; errorCode: string | null; synthetic: boolean } | null;
+    analysis: { status: string; provider: string | null; model: string | null; promptVersion: string | null; category: string | null; evidenceQuote: string | null; explanation: string | null; errorCode: string | null; synthetic: boolean } | null;
     effective: { category: string | null; overridden: boolean; originalCategory: string | null; source: Source };
     createdAt: string;
   }[];
@@ -103,7 +103,7 @@ function SourceBadge({ source }: { source: Source }) {
     ai: ["AI analysis", "violet"],
     "rule-based": ["Rule-based", "navy"],
     "host-override": ["Your override", "green"],
-    synthetic: ["Synthetic demo", "amber"],
+    synthetic: ["Demo data", "amber"],
     unavailable: ["Analysis unavailable", "rose"],
   };
   const [label, tone] = map[source];
@@ -427,10 +427,12 @@ function ResponseRow({ r, subject, onChange }: { r: Results["responses"][number]
             </p>
           )}
           {r.analysis.explanation && <p className="text-navy-soft">{r.analysis.explanation}</p>}
-          <p className="text-xs text-navy-soft">
-            {r.analysis.provider}
-            {r.analysis.model ? ` · ${r.analysis.model}` : ""} · prompt {r.analysis.promptVersion}
-          </p>
+          {r.analysis.provider && (
+            <p className="text-xs text-navy-soft">
+              {r.analysis.provider}
+              {r.analysis.model ? ` · ${r.analysis.model}` : ""} · prompt {r.analysis.promptVersion}
+            </p>
+          )}
           {r.analysis.status === "completed" && (
             <div>
               {!editing ? (

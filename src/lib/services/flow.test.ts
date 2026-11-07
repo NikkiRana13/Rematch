@@ -331,3 +331,15 @@ describe("participation, scoring, and authorization", () => {
     expect(none.payload.suggestions.length).toBeGreaterThan(0);
   });
 });
+
+describe("demo data presentation", () => {
+  it("shows synthetic analyses as demo data without provider details, keeping the stored record intact", async () => {
+    const [demo] = await db.select("competitions", { eq: { ownerId: teacher.id, isDemoData: true, subject: "math" } });
+    const res = await getHostResults(db, teacher, demo.id);
+    const row = res.responses.find((r) => r.analysis?.synthetic)!;
+    expect(row.analysis).toMatchObject({ provider: null, model: null, promptVersion: null, explanation: "Demonstration classification for a fictional student." });
+    expect(row.effective.source).toBe("synthetic");
+    const [stored] = await db.select("analyses", { eq: { attemptId: row.attemptId } });
+    expect(stored.provider).not.toBeNull();
+  });
+});

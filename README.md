@@ -159,7 +159,7 @@ It's clearly labelled, it isn't a shared database, and it's disabled automatical
 |---|---|
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm run check` | Lint + type check + tests |
-| `npm test` | 58 Vitest tests: scoring, answer keys, payload sanitisation, validation, routing, authorization, analytics, recommendations |
+| `npm test` | 59 Vitest tests: scoring, answer keys, payload sanitisation, validation, routing, authorization, analytics, recommendations |
 | `npm run eval -- --rules` | Offline classifier evaluation on labelled fixtures (rule-based baseline) |
 | `npm run eval` | Same, with Claude. **Makes real, billed API calls** |
 | `npm run seed:sql` | Regenerate `supabase/seed.sql` from the verified bank |
@@ -193,7 +193,7 @@ Reading and math share one sprint engine. Only the content, rubrics, and practic
   - practice → comeback
   - live dashboard updates
   - access control: other students and hosts get 404, no session gets 401
-- **Checks:** lint, type checking, the production build, and 58 automated tests all pass.
+- **Checks:** lint, type checking, the production build, and 59 automated tests all pass.
 - **Claude classification** (`claude-opus-5-5`, prompt `classify-v1`) on the 31 developer-written labelled fixtures:
   - **31 of 31** matched the expected label.
   - **0 of 7** vague, guess or injection cases got a specific diagnosis.
@@ -201,7 +201,7 @@ Reading and math share one sprint engine. Only the content, rubrics, and practic
   - 0 API failures.
 - **AI analysis is live on the production site.**
 - **Rule-based baseline** on the same set: 22 of 31 (71%).
-- **Demo classroom data:** the synthetic students in the demo classrooms were generated before AI was enabled, so their analyses are rule-based and labelled that way.
+- **Demo classroom data:** the fictional students' analyses appear on dashboards as **"Demo data"**, not as AI analysis. They were generated before AI was enabled, and their stored records keep the true provider (rule-based). Anything a real participant submits is analysed by Claude and labelled "AI analysis".
 
 **Not yet verified / known gaps**
 - **Evaluation scope:** the fixtures are a small set written by the developer, not real student responses. A perfect score there does not establish accuracy in real classrooms.
