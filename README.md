@@ -6,6 +6,8 @@ A hackathon MVP for classroom learning sprints in **reading comprehension** and 
 
 Hosts (teachers or students) launch a short sprint. Participants join with a room code and answer questions, explaining their reasoning as they go. Answers are scored deterministically on the server. An analyser looks for a *likely* misconception, which must be backed by a quote from the student's own explanation. Students then get targeted practice and a verified comeback question. Hosts see live, evidence-backed results with denominators, plus suggested activities that they must review before anything is assigned.
 
+**Live demo:** https://rematch-phi.vercel.app (Vercel + Supabase; reasoning analysis is currently rule-based because no Anthropic key is configured).
+
 > Grade 5 demonstration content. **Ontario curriculum alignment has not been verified.** All demo students and history are fictional and labelled as such.
 
 ---
@@ -165,12 +167,13 @@ npm run eval              # Anthropic evaluation — makes real, billed API call
 
 ### Not verified / incomplete
 
-- **The Supabase path has not been run against a live project** (no credentials in this environment). The migration, RLS policies, and `SupabaseDb` adapter are written but untested; expect some fixes on first deploy.
+- **Supabase/Vercel production path:** verified end to end on https://rematch-phi.vercel.app. Host sign-up, loading demo data, join, scoring, duplicate rejection (409), practice → comeback (+50), live host metrics, cross-participant denial (404), no-session denial (401), and demo sign-in disabled in production (404) all worked. Anonymous Supabase clients can't read `questions` (RLS). The individual RLS host policies haven't been tested directly, because the app goes through server routes.
 - **Anthropic classification has not been run against the real API** (no key here). The request shape follows the SDK types (`tsc` passes), and with an invalid key all 31 eval calls were correctly recorded as `api_auth_error` / unavailable. **There are no AI accuracy numbers yet.** Run `npm run eval` with a key to get them.
 - **Rule-based baseline on the 31 developer-written fixtures:** 22 of 31 (71%). It gave a specific diagnosis to 1 of 7 insufficient-evidence cases, and 0 of its quotes were invalid. Its misses are mostly conservative "insufficient evidence" calls.
 - **The UI was checked for successful renders (HTTP 200) and a clean build,** but not clicked through in a real browser or screen reader. A manual accessibility pass (contrast, VoiceOver/NVDA) is still needed.
 - Analysis runs synchronously inside the submit request, so the student waits for the AI call (timeout 45 s, 1 retry).
 - Supabase sessions are refreshed in route handlers; there's no `proxy.ts` session-refresh middleware.
+- Email confirmation is turned off in `supabase/config.toml` for the hackathon, so anyone can create a host account without verifying their email.
 - No question editing or versioning UI after creation (versions are stored, starting at 1), and no deletion UI.
 - Polling (5 s) instead of realtime.
 
