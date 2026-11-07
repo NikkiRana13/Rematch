@@ -194,10 +194,17 @@ Reading and math share one sprint engine. Only the content, rubrics, and practic
   - live dashboard updates
   - access control: other students and hosts get 404, no session gets 401
 - **Checks:** lint, type checking, the production build, and 58 automated tests all pass.
-- **Rule-based baseline:** 22 of 31 labelled fixtures (71%) on the developer-written evaluation set. Every evidence quote it returned was valid.
+- **Claude classification** (`claude-opus-5-5`, prompt `classify-v1`) on the 31 developer-written labelled fixtures:
+  - **31 of 31** matched the expected label.
+  - **0 of 7** vague, guess or injection cases got a specific diagnosis.
+  - All 22 evidence quotes it returned were verified in the student's text.
+  - 0 API failures.
+- **AI analysis is live on the production site.**
+- **Rule-based baseline** on the same set: 22 of 31 (71%).
+- **Demo classroom data:** the synthetic students in the demo classrooms were generated before AI was enabled, so their analyses are rule-based and labelled that way.
 
 **Not yet verified / known gaps**
-- **Claude:** classification hasn't been evaluated against the labelled fixtures yet, so there are no AI accuracy numbers. Run `npm run eval`.
+- **Evaluation scope:** the fixtures are a small set written by the developer, not real student responses. A perfect score there does not establish accuracy in real classrooms.
 - **Manual testing:** no manual browser or screen-reader accessibility pass yet.
 - **Speed:** analysis runs inside the submit request, so students wait for the AI response.
 - **Live updates:** they use polling (5 s), not realtime.
