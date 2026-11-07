@@ -196,7 +196,7 @@ export function QuestMap({ nickname, title, subject, initialPoints, comebackPoin
         <button
           type="button"
           onClick={onStart}
-          className="pixel-font border-4 border-[#1C1D63] bg-[#FF36BE] px-6 py-4 text-sm leading-relaxed text-[#1A1C2C] shadow-[0_6px_0_#2527B9] hover:translate-y-0.5 focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#F3B60B]"
+          className="pixel-font border-4 border-[#FF36BE] bg-[#FEF6DE] px-6 py-4 text-sm leading-relaxed text-[#1A1C2C] shadow-[0_6px_0_#2527B9] hover:translate-y-0.5 hover:bg-[#FFE0F4] focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#F3B60B]"
         >
           {done ? "View results ▸" : answered > 0 ? "Continue quest ▸" : "Start quest ▸"}
         </button>

@@ -129,7 +129,7 @@ export function QuestionForm({
                 <input type="radio" name="answer" value={c.id} checked={choice === c.id} onChange={() => setChoice(c.id)} className="sr-only" />
                 <span
                   aria-hidden="true"
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-bold ${choice === c.id ? "bg-violet text-white" : "bg-cream-2"}`}
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-bold ${choice === c.id ? "bg-white border-2 border-violet text-navy" : "bg-cream-2"}`}
                 >
                   {c.id}
                 </span>

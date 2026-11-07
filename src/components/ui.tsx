@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 type Variant = "primary" | "secondary" | "ghost" | "success" | "danger";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-violet text-white hover:bg-violet-strong shadow-sm",
+  primary: "bg-white border-2 border-violet text-navy hover:bg-violet-soft shadow-sm",
   secondary: "bg-white text-navy border border-line hover:border-violet",
   ghost: "text-violet-strong hover:bg-violet-soft",
   success: "bg-green text-white hover:brightness-110",

@@ -95,7 +95,7 @@ function OverviewInner() {
                 setSubject(s);
                 setIds(null);
               }}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold border ${subject === s ? "bg-violet text-white border-violet" : "bg-white border-line hover:border-violet"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold border ${subject === s ? "bg-violet-soft border-2 border-violet text-navy" : "bg-white border-line hover:border-violet"}`}
             >
               {s === "all" ? "All subjects" : s === "reading" ? "Reading" : "Math"}
             </button>

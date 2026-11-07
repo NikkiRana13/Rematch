@@ -87,7 +87,7 @@ function Dashboard({ host, session }: { host: NonNullable<SessionInfo["host"]>; 
                 key={s}
                 aria-pressed={subjectFilter === s}
                 onClick={() => setSubjectFilter(s)}
-                className={`rounded-full px-3 py-1 text-sm border ${subjectFilter === s ? "bg-violet text-white border-violet" : "bg-white border-line"}`}
+                className={`rounded-full px-3 py-1 text-sm border ${subjectFilter === s ? "bg-violet-soft border-2 border-violet text-navy" : "bg-white border-line"}`}
               >
                 {s === "all" ? "All subjects" : s === "reading" ? "Reading" : "Math"}
               </button>

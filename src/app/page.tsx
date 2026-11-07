@@ -21,7 +21,7 @@ export default function Home() {
           </h2>
           <p className="text-navy-soft">Join a sprint with your class code, explain your thinking, practise, and win comeback points. No timers, no public rankings.</p>
           <div className="mt-auto flex flex-wrap gap-3">
-            <Link href="/join" className="inline-flex items-center justify-center rounded-xl bg-violet px-5 py-3 font-semibold">
+            <Link href="/join" className="inline-flex items-center justify-center rounded-xl bg-white border-2 border-violet text-navy hover:bg-violet-soft px-5 py-3 font-semibold">
               Join with a code
             </Link>
             <Link href="/me" className="inline-flex items-center justify-center rounded-xl border border-navy bg-white px-5 py-3 font-semibold">
@@ -37,7 +37,7 @@ export default function Home() {
           </h2>
           <p className="text-navy-soft">Host sprints, build learning plans, and see evidence-backed results for your class. You only see the classes you create.</p>
           <div className="mt-auto flex flex-wrap gap-3">
-            <Link href="/host" className="inline-flex items-center justify-center rounded-xl bg-violet px-5 py-3 font-semibold">
+            <Link href="/host" className="inline-flex items-center justify-center rounded-xl bg-white border-2 border-violet text-navy hover:bg-violet-soft px-5 py-3 font-semibold">
               Teacher dashboard
             </Link>
           </div>

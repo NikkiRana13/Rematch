@@ -13,7 +13,8 @@ interface Settings {
   font: FontChoice;
 }
 
-const DEFAULTS: Settings = { fontSize: "normal", spacing: "normal", font: "default" };
+/** Defaults favour readability: larger text, Rematch style font. */
+const DEFAULTS: Settings = { fontSize: "large", spacing: "normal", font: "default" };
 
 const FONT: Record<FontSize, string> = { normal: "100%", large: "115%", "x-large": "130%" };
 const LEADING: Record<Spacing, string> = { normal: "1.6", relaxed: "1.9", loose: "2.25" };
@@ -83,7 +84,7 @@ function Segmented<T extends string>({
           <label
             key={o.value}
             className={`cursor-pointer rounded-full border px-3 py-1 text-sm transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-violet ${
-              value === o.value ? "bg-violet text-white border-violet" : "bg-white border-line hover:border-violet"
+              value === o.value ? "bg-violet-soft border-2 border-violet text-navy" : "bg-white border-line hover:border-violet"
             }`}
           >
             <input
