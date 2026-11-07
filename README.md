@@ -162,6 +162,19 @@ With no environment variables set, Rematch runs in **local demo mode**:
 
 It's clearly labelled, it isn't a shared database, and it's disabled automatically whenever Supabase is configured.
 
+### Local test competition (TEST55)
+
+Local demo mode always includes one hardcoded, open competition for manual testing. It's never created in Supabase or production.
+
+| | |
+|---|---|
+| Room code | `TEST55` → http://localhost:3000/join?code=TEST55 |
+| Questions | Pizza (3/4 vs 3/8) · Juice (2/3 vs 2/5) · Place value (47 382) |
+| Teacher results | http://localhost:3000/host/competitions/00000000-0000-4000-8000-000000007e57 (sign in as Ms. Rivera) |
+| Roadmap | Assigned to both demo learning plans, so **My roadmap** works after joining |
+
+Try picking **Noah** with "8 is bigger than 4" to see targeted practice, then the comeback. **Reset demo data** on the host dashboard clears its answers. Defined in `src/lib/services/localTestCompetition.ts`.
+
 ## Deploy your own (Supabase + Vercel)
 
 1. **Create a Supabase project** and link it:

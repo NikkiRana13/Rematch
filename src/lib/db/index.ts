@@ -7,6 +7,7 @@ import { SupabaseDb } from "./supabase";
 import type { Db } from "./types";
 import { DbUnavailableError } from "./types";
 import { seedLocalStore } from "../services/localSeed";
+import { ensureLocalTestCompetition } from "../services/localTestCompetition";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "rematch-local.json");
@@ -29,7 +30,9 @@ function loadLocal(): Db {
     }
   };
   const db = new MemoryDb(store ?? seedLocalStore(), persist);
-  if (!store) persist();
+  // Older local data files get the hardcoded TEST55 competition too.
+  const added = store ? ensureLocalTestCompetition(db.store) : false;
+  if (!store || added) persist();
   return db;
 }
 

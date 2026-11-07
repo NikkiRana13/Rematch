@@ -182,7 +182,15 @@ function Dashboard({ host, session }: { host: NonNullable<SessionInfo["host"]>; 
 
       {session.mode === "local-demo" && (
         <p className="text-sm text-navy-soft">
-          Local demo tip: open <Link className="underline" href="/join">/join</Link> in a private window to play as a student while watching results here.{" "}
+          Local demo tip: open{" "}
+          <Link className="underline" href="/join?code=TEST55">
+            /join?code=TEST55
+          </Link>{" "}
+          in a private window to play the hardcoded <strong>Local Test Sprint</strong> as a student while watching its{" "}
+          <Link className="underline" href="/host/competitions/00000000-0000-4000-8000-000000007e57">
+            results
+          </Link>{" "}
+          here.{" "}
           <button className="underline" onClick={() => act("reset", () => post("/api/dev/reset"), "Demo data reset.").then(() => location.reload())}>
             Reset demo data
           </button>

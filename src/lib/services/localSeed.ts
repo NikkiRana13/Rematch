@@ -3,6 +3,7 @@ import { emptyStore, type Store } from "../db/memory";
 import type { Host } from "../types";
 import { buildDemoBundle } from "./demoData";
 import { buildDemoPlans } from "./demoPlans";
+import { ensureLocalTestCompetition, LOCAL_TEST_CODE } from "./localTestCompetition";
 
 /** Fictional demo host accounts (local demo mode only). */
 export const DEMO_HOSTS: Host[] = [
@@ -22,7 +23,7 @@ export function seedLocalStore(): Store {
   store.attempts.push(...bundle.attempts);
   store.analyses.push(...bundle.analyses);
   // Demo learning plans, assigned to the demo roadmap class and the open math sprint.
-  const taken = new Set(store.competitions.map((c) => c.roomCode));
+  const taken = new Set([...store.competitions.map((c) => c.roomCode), LOCAL_TEST_CODE]);
   const liveMath = bundle.competitions.find((c) => c.status === "open" && c.subject === "math");
   const plans = buildDemoPlans("demo-teacher", taken, liveMath ? [liveMath.id] : []);
   store.competitions.push(...plans.competitions);
@@ -35,5 +36,6 @@ export function seedLocalStore(): Store {
   store.participants.push(...plans.participants);
   store.attempts.push(...plans.attempts);
   store.analyses.push(...plans.analyses);
+  ensureLocalTestCompetition(store);
   return store;
 }

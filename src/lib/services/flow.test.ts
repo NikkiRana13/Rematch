@@ -385,3 +385,23 @@ describe("teacher-only hosting", () => {
     await expect(createPlan(db, studentHost, { title: "p", subject: "math", courseLabel: "", description: "", unitLabel: "Lecture" })).rejects.toMatchObject({ status: 403 });
   });
 });
+
+describe("local test competition (TEST55)", () => {
+  it("is seeded open with fixed code, id and questions, joinable, and on the demo roadmap", async () => {
+    const { LOCAL_TEST_CODE, LOCAL_TEST_COMPETITION_ID, LOCAL_TEST_QUESTION_IDS } = await import("./localTestCompetition");
+    const [c] = await db.select("competitions", { eq: { roomCode: LOCAL_TEST_CODE } });
+    expect(c).toMatchObject({ id: LOCAL_TEST_COMPETITION_ID, status: "open", questionIds: LOCAL_TEST_QUESTION_IDS, ownerId: teacher.id });
+    const { learner } = await joinCompetition(db, null, { roomCode: "test55", nickname: "Tester" });
+    const state = await getPlayState(db, learner, c.id);
+    expect(state.step).toMatchObject({ type: "question", questionId: LOCAL_TEST_QUESTION_IDS[0] });
+    const { listRoadmaps } = await import("./roadmap");
+    expect((await listRoadmaps(db, learner)).plans.length).toBeGreaterThan(0);
+  });
+
+  it("is restored into older local data that lacks it", async () => {
+    const { ensureLocalTestCompetition, LOCAL_TEST_COMPETITION_ID } = await import("./localTestCompetition");
+    db.store.competitions = db.store.competitions.filter((c) => c.id !== LOCAL_TEST_COMPETITION_ID);
+    expect(ensureLocalTestCompetition(db.store)).toBe(true);
+    expect(ensureLocalTestCompetition(db.store)).toBe(false);
+  });
+});
